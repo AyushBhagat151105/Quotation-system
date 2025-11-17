@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
@@ -40,4 +40,56 @@ export class LoginDto {
   })
   @IsNotEmpty({ message: 'Password is required' })
   password: string;
+}
+
+export class ForgotPasswordDto {
+  @ApiProperty({
+    example: 'ayush@example.com',
+    description: 'Email of the user requesting password reset',
+  })
+  @IsEmail({}, { message: 'Email must be valid' })
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    description: 'JWT reset token sent to email',
+  })
+  @IsString()
+  token: string;
+
+  @ApiProperty({
+    example: 'newPassword123',
+    minLength: 6,
+    description: 'New password (must be at least 6 characters)',
+  })
+  @IsString()
+  @MinLength(6, { message: 'New password must be at least 6 characters' })
+  newPassword: string;
+}
+
+export class ChangePasswordDto {
+  @ApiProperty({
+    example: 'ayush@example.com',
+    description: 'Email of the user changing password',
+  })
+  @IsEmail({}, { message: 'Email must be valid' })
+  email: string;
+
+  @ApiProperty({
+    example: 'oldPassword123',
+    description: 'Current password of the user',
+  })
+  @IsString()
+  oldPassword: string;
+
+  @ApiProperty({
+    example: 'newPassword123',
+    minLength: 6,
+    description: 'New password (must be at least 6 characters)',
+  })
+  @IsString()
+  @MinLength(6, { message: 'New password must be at least 6 characters' })
+  newPassword: string;
 }
