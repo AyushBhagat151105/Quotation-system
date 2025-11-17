@@ -1,3 +1,2 @@
 cd backend
-pnpm build
-cd ..
+pnpm run build
