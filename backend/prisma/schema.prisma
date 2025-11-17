@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,9 +14,6 @@ enum QuotationStatus {
   EXPIRED
 }
 
-// ================================
-// USER MODEL (formerly admin_accounts)
-// ================================
 model User {
   id           String    @id @default(uuid())
   email        String    @unique
@@ -34,36 +25,28 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  // Relations
   quotations Quotation[]
   auditLogs  AuditLog[]
 }
 
-// ================================
-// QUOTATIONS
-// ================================
 model Quotation {
-  id           String           @id @default(uuid())
+  id           String          @id @default(uuid())
   adminId      String
   clientName   String
   clientEmail  String
-  status       QuotationStatus  @default(PENDING)
-  totalAmount  Decimal          @db.Decimal(10,2)
+  status       QuotationStatus @default(PENDING)
+  totalAmount  Decimal         @db.Decimal(10, 2)
   validityDate DateTime?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
-  admin        User             @relation(fields: [adminId], references: [id])
-  items        QuotationItem[]
-  responses    QuotationResponse[]
-  emails       Email[]
-  auditLogs    AuditLog[]
+  admin     User                @relation(fields: [adminId], references: [id])
+  items     QuotationItem[]
+  responses QuotationResponse[]
+  emails    Email[]
+  auditLogs AuditLog[]
 }
 
-
-// ================================
-// QUOTATION ITEMS
-// ================================
 model QuotationItem {
   id          String   @id @default(uuid())
   quotationId String
@@ -74,18 +57,14 @@ model QuotationItem {
   tax         Decimal? @db.Decimal(10, 2)
   totalPrice  Decimal  @db.Decimal(10, 2)
 
-  // Relation
   quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
 }
 
-// ================================
-// QUOTATION RESPONSES
-// ================================
 model QuotationResponse {
   id               String   @id @default(uuid())
   quotationId      String
   respondedAt      DateTime @default(now())
-  status           String // Approved or Rejected
+  status           String
   rejectionComment String?
   clientIp         String?
   userAgent        String?
@@ -93,9 +72,6 @@ model QuotationResponse {
   quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
 }
 
-// ================================
-// EMAIL LOGS
-// ================================
 model Email {
   id             String   @id @default(uuid())
   quotationId    String
@@ -107,9 +83,6 @@ model Email {
   quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
 }
 
-// ================================
-// AUDIT LOGS
-// ================================
 model AuditLog {
   id          String   @id @default(uuid())
   adminId     String
