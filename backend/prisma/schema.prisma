@@ -13,13 +13,111 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum QuotationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+// ================================
+// USER MODEL (formerly admin_accounts)
+// ================================
 model User {
-  id           String  @unique @default(uuid())
-  email        String  @unique
+  id           String    @id @default(uuid())
+  email        String    @unique
   name         String
   password     String
   refreshToken String?
   resetToken   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  lastLogin    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  quotations Quotation[]
+  auditLogs  AuditLog[]
+}
+
+// ================================
+// QUOTATIONS
+// ================================
+model Quotation {
+  id           String           @id @default(uuid())
+  adminId      String
+  clientName   String
+  clientEmail  String
+  status       QuotationStatus  @default(PENDING)
+  totalAmount  Decimal          @db.Decimal(10,2)
+  validityDate DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  admin        User             @relation(fields: [adminId], references: [id])
+  items        QuotationItem[]
+  responses    QuotationResponse[]
+  emails       Email[]
+  auditLogs    AuditLog[]
+}
+
+
+// ================================
+// QUOTATION ITEMS
+// ================================
+model QuotationItem {
+  id          String   @id @default(uuid())
+  quotationId String
+  itemName    String
+  description String?
+  quantity    Int
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  tax         Decimal? @db.Decimal(10, 2)
+  totalPrice  Decimal  @db.Decimal(10, 2)
+
+  // Relation
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+}
+
+// ================================
+// QUOTATION RESPONSES
+// ================================
+model QuotationResponse {
+  id               String   @id @default(uuid())
+  quotationId      String
+  respondedAt      DateTime @default(now())
+  status           String // Approved or Rejected
+  rejectionComment String?
+  clientIp         String?
+  userAgent        String?
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+}
+
+// ================================
+// EMAIL LOGS
+// ================================
+model Email {
+  id             String   @id @default(uuid())
+  quotationId    String
+  sentTo         String
+  sentAt         DateTime @default(now())
+  deliveryStatus String // Sent, Delivered, Failed
+  emailType      String // Quotation, Reminder, etc.
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+}
+
+// ================================
+// AUDIT LOGS
+// ================================
+model AuditLog {
+  id          String   @id @default(uuid())
+  adminId     String
+  quotationId String?
+  action      String
+  timestamp   DateTime @default(now())
+  details     String?
+
+  admin     User       @relation(fields: [adminId], references: [id])
+  quotation Quotation? @relation(fields: [quotationId], references: [id])
 }
