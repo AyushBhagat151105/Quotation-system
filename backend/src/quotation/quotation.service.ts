@@ -17,7 +17,7 @@ export class QuotationService {
     private emailService: EmailService,
   ) {}
 
-  async create(dto: CreateQuotationDto) {
+  async create(dto: CreateQuotationDto, adminId: string) {
     const itemsData = dto.items.map((it) => {
       const qty = new Decimal(it.quantity);
       const unit = new Decimal(it.unitPrice);
@@ -41,7 +41,7 @@ export class QuotationService {
       data: {
         clientName: dto.clientName,
         clientEmail: dto.clientEmail,
-        adminId: dto.adminId,
+        adminId: adminId,
         status: 'PENDING',
         totalAmount,
         validityDate: dto.validityDate ? new Date(dto.validityDate) : null,
@@ -60,7 +60,7 @@ export class QuotationService {
     // create audit log
     await this.prisma.auditLog.create({
       data: {
-        adminId: dto.adminId,
+        adminId: adminId,
         quotationId: quotation.id,
         action: 'CREATE_QUOTATION',
         details: `Created quotation with total ${totalAmount}`,

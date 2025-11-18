@@ -8,6 +8,7 @@ import {
   Query,
   Delete,
   Put,
+  Request,
 } from '@nestjs/common';
 import { QuotationService } from './quotation.service';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
@@ -28,8 +29,9 @@ export class QuotationController {
   @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Create a new quotation (admin)' })
-  create(@Body() dto: CreateQuotationDto) {
-    return this.service.create(dto);
+  create(@Request() req,@Body() dto: CreateQuotationDto) {
+    const adminId = req.user.id;
+    return this.service.create(dto, adminId);
   }
 
   @UseGuards(JwtAuthGuard)

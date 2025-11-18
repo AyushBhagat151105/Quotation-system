@@ -21,10 +21,6 @@ export class CreateQuotationDto {
   @IsEmail()
   clientEmail: string;
 
-  @ApiProperty({ example: 'uuid-of-admin' })
-  @IsString()
-  @IsNotEmpty()
-  adminId: string;
 
   @ApiProperty({ example: '2025-12-31T00:00:00.000Z', required: false })
   @IsOptional()
