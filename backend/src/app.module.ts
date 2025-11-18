@@ -7,9 +7,17 @@ import { UserController } from './user/user.controller';
 import { EmailService } from './email/email.service';
 import { EmailModule } from './email/email.module';
 import { QuotationModule } from './quotation/quotation.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronModule } from './cron/cron.module';
 
 @Module({
-  imports: [AuthModule, EmailModule, QuotationModule],
+  imports: [
+    ScheduleModule.forRoot(),
+    AuthModule,
+    EmailModule,
+    QuotationModule,
+    CronModule,
+  ],
   controllers: [AppController, UserController],
   providers: [AppService, PrismaService, EmailService],
 })

@@ -14,8 +14,8 @@ import { QuotationService } from './quotation.service';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
 import { UpdateQuotationDto } from './dto/update-quotation.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { EmailService } from 'src/email/email.service';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
 
 @ApiTags('Quotations')
 @Controller('quotations')
@@ -25,71 +25,98 @@ export class QuotationController {
     private emailService: EmailService,
   ) {}
 
+  // -----------------------------
+  // CREATE QUOTATION
+  // -----------------------------
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Create a new quotation (admin)' })
-  create(@Request() req,@Body() dto: CreateQuotationDto) {
-    const adminId = req.user.id;
-    return this.service.create(dto, adminId);
+  create(@Request() req, @Body() dto: CreateQuotationDto) {
+    return this.service.create(dto, req.user.id);
   }
 
+  // -----------------------------
+  // LIST ADMIN QUOTATIONS
+  // -----------------------------
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Get('admin/:adminId')
-  @ApiOperation({ summary: 'List quotations for admin' })
+  @Get('admin')
+  @ApiOperation({ summary: 'List quotations for logged-in admin' })
   listForAdmin(
-    @Param('adminId') adminId: string,
+    @Request() req,
     @Query('take') take?: string,
     @Query('skip') skip?: string,
   ) {
     return this.service.listForAdmin(
-      adminId,
+      req.user.id,
       take ? Number(take) : 50,
       skip ? Number(skip) : 0,
     );
   }
 
+  // -----------------------------
+  // GET SINGLE QUOTATION
+  // -----------------------------
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get(':id')
   @ApiOperation({ summary: 'Get a quotation by id (admin)' })
-  getOne(@Param('id') id: string) {
-    return this.service.findOne(id);
+  getOne(@Request() req, @Param('id') id: string) {
+    return this.service.findOne(id, req.user.id);
   }
 
+  // -----------------------------
+  // UPDATE QUOTATION
+  // -----------------------------
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Put(':id')
   @ApiOperation({ summary: 'Update a quotation (admin)' })
-  update(@Param('id') id: string, @Body() dto: UpdateQuotationDto) {
-    return this.service.update(id, dto);
+  update(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() dto: UpdateQuotationDto,
+  ) {
+    return this.service.update(id, dto, req.user.id);
   }
 
+  // -----------------------------
+  // DELETE QUOTATION
+  // -----------------------------
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a quotation (admin)' })
-  remove(@Param('id') id: string) {
-    return this.service.remove(id);
+  remove(@Request() req, @Param('id') id: string) {
+    return this.service.remove(id, req.user.id);
   }
 
+  // -----------------------------
+  // SEND QUOTATION EMAIL
+  // -----------------------------
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post(':id/send')
   @ApiOperation({ summary: 'Send quotation link to client email' })
-  send(@Param('id') id: string, @Body('email') email: string) {
-    return this.emailService.sendQuotationEmail(id, email);
+  send(@Request() req, @Param('id') id: string, @Body('email') email: string) {
+    return this.service.sendQuotationEmail(id, email, req.user.id);
   }
 
+  // -----------------------------
+  // ADMIN DASHBOARD STATS
+  // -----------------------------
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Get('admin/:adminId/stats')
+  @Get('admin/stats')
   @ApiOperation({ summary: 'Get dashboard stats for admin' })
-  stats(@Param('adminId') adminId: string) {
-    return this.service.adminDashboardStats(adminId);
+  stats(@Request() req) {
+    return this.service.adminDashboardStats(req.user.id);
   }
 
+  // -----------------------------
+  // PUBLIC VIEW (NO AUTH)
+  // -----------------------------
   @Get(':id/public')
   @ApiOperation({ summary: 'Public quotation view (client link)' })
   publicView(@Param('id') id: string) {

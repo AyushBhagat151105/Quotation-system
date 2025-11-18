@@ -1,7 +1,7 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
@@ -17,12 +17,16 @@ export class QuotationService {
     private emailService: EmailService,
   ) {}
 
+  // -----------------------------------------------------
+  // CREATE QUOTATION (adminId always from JWT)
+  // -----------------------------------------------------
   async create(dto: CreateQuotationDto, adminId: string) {
     const itemsData = dto.items.map((it) => {
       const qty = new Decimal(it.quantity);
       const unit = new Decimal(it.unitPrice);
       const tax = it.tax ? new Decimal(it.tax) : new Decimal(0);
       const totalPrice = qty.mul(unit).plus(tax);
+
       return {
         itemName: it.itemName,
         description: it.description ?? '',
@@ -41,7 +45,7 @@ export class QuotationService {
       data: {
         clientName: dto.clientName,
         clientEmail: dto.clientEmail,
-        adminId: adminId,
+        adminId, // <-- FROM JWT ONLY
         status: 'PENDING',
         totalAmount,
         validityDate: dto.validityDate ? new Date(dto.validityDate) : null,
@@ -57,10 +61,9 @@ export class QuotationService {
       quotation.clientEmail,
     );
 
-    // create audit log
     await this.prisma.auditLog.create({
       data: {
-        adminId: adminId,
+        adminId,
         quotationId: quotation.id,
         action: 'CREATE_QUOTATION',
         details: `Created quotation with total ${totalAmount}`,
@@ -70,18 +73,36 @@ export class QuotationService {
     return quotation;
   }
 
-  async findOne(id: string) {
+  // -----------------------------------------------------
+  // GET SINGLE QUOTATION (admin)
+  // -----------------------------------------------------
+  async findOne(id: string, adminId: string) {
     const q = await this.prisma.quotation.findUnique({
       where: { id },
       include: { items: true, responses: true, emails: true },
     });
+
     if (!q) throw new NotFoundException('Quotation not found');
+
+    // Ensure owner
+    if (q.adminId !== adminId) {
+      throw new ForbiddenException('Not your quotation');
+    }
+
     return q;
   }
 
-  async update(id: string, dto: UpdateQuotationDto) {
+  // -----------------------------------------------------
+  // UPDATE QUOTATION
+  // -----------------------------------------------------
+  async update(id: string, dto: UpdateQuotationDto, adminId: string) {
     const exists = await this.prisma.quotation.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('Quotation not found');
+
+    // Ownership check
+    if (exists.adminId !== adminId) {
+      throw new ForbiddenException('Not your quotation');
+    }
 
     const updated = await this.prisma.quotation.update({
       where: { id },
@@ -93,7 +114,7 @@ export class QuotationService {
 
     await this.prisma.auditLog.create({
       data: {
-        adminId: updated.adminId,
+        adminId,
         quotationId: id,
         action: 'UPDATE_QUOTATION',
         details: `Updated fields: ${Object.keys(dto).join(', ')}`,
@@ -103,24 +124,34 @@ export class QuotationService {
     return updated;
   }
 
-  async remove(id: string) {
+  // -----------------------------------------------------
+  // DELETE QUOTATION
+  // -----------------------------------------------------
+  async remove(id: string, adminId: string) {
     const q = await this.prisma.quotation.findUnique({ where: { id } });
     if (!q) throw new NotFoundException('Quotation not found');
+
+    if (q.adminId !== adminId) {
+      throw new ForbiddenException('Not your quotation');
+    }
 
     await this.prisma.quotation.delete({ where: { id } });
 
     await this.prisma.auditLog.create({
       data: {
-        adminId: q.adminId,
+        adminId,
         quotationId: id,
         action: 'DELETE_QUOTATION',
-        details: `Deleted quotation`,
+        details: 'Deleted quotation',
       },
     });
 
     return { message: 'Quotation deleted' };
   }
 
+  // -----------------------------------------------------
+  // LIST ALL QUOTATIONS OF LOGGED-IN ADMIN
+  // -----------------------------------------------------
   async listForAdmin(adminId: string, take = 50, skip = 0) {
     const [items, count] = await Promise.all([
       this.prisma.quotation.findMany({
@@ -136,6 +167,9 @@ export class QuotationService {
     return { items, count };
   }
 
+  // -----------------------------------------------------
+  // PUBLIC QUOTATION VIEW (NO AUTH)
+  // -----------------------------------------------------
   async publicView(id: string) {
     const q = await this.prisma.quotation.findUnique({
       where: { id },
@@ -155,6 +189,9 @@ export class QuotationService {
     return q;
   }
 
+  // -----------------------------------------------------
+  // ADMIN DASHBOARD STATS (jwt)
+  // -----------------------------------------------------
   async adminDashboardStats(adminId: string) {
     const total = await this.prisma.quotation.count({ where: { adminId } });
     const pending = await this.prisma.quotation.count({
@@ -174,5 +211,20 @@ export class QuotationService {
     });
 
     return { total, pending, approved, rejected, recent };
+  }
+
+  // -----------------------------------------------------
+  // SEND QUOTATION EMAIL (admin protected)
+  // -----------------------------------------------------
+  async sendQuotationEmail(id: string, email: string, adminId: string) {
+    const q = await this.prisma.quotation.findUnique({ where: { id } });
+
+    if (!q) throw new NotFoundException('Quotation not found');
+
+    if (q.adminId !== adminId) {
+      throw new ForbiddenException('Not your quotation');
+    }
+
+    return this.emailService.sendQuotationEmail(id, email);
   }
 }
