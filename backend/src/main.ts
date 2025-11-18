@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import path from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { Response } from 'express';
 async function bootstrap() {
   const logger = new Logger();
 
@@ -22,14 +23,16 @@ async function bootstrap() {
   app.useStaticAssets(path.join(__dirname, '..', 'public'));
   const config = new DocumentBuilder()
     .setTitle('Quotation-Management apis documentation')
-    .setDescription(
-      'This is the documentation for Quotation-Management api.',
-    )
+    .setDescription('This is the documentation for Quotation-Management api.')
     .setVersion('1.0')
     .addTag('Notes')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
+  app.getHttpAdapter().get('/openapi.json', (req, res: Response) => {
+    res.json(document);
+  });
 
   app.use(
     '/docs',
@@ -49,5 +52,8 @@ async function bootstrap() {
 
   logger.log(`Server is running on http://localhost:${process.env.PORT}`);
   logger.log(`📘 Docs available at http://localhost:${process.env.PORT}/docs`);
+  logger.log(
+    `📄 OpenAPI JSON at http://localhost:${process.env.PORT}/openapi.json`,
+  );
 }
 bootstrap();
