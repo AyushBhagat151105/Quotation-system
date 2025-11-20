@@ -43,6 +43,7 @@ async function bootstrap() {
         title: 'Quotation-Management API Reference',
         description: 'Beautiful API docs using Scalar',
       },
+      searchHotKey: 'h',
       theme: 'bluePlanet',
       showToolbar: 'localhost',
     }),

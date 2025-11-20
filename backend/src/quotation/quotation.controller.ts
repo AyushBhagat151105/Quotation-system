@@ -16,6 +16,7 @@ import { UpdateQuotationDto } from './dto/update-quotation.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { EmailService } from 'src/email/email.service';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
+import { ClientActionDto } from './dto/client-action.dto';
 
 @ApiTags('Quotations')
 @Controller('quotations')
@@ -99,8 +100,8 @@ export class QuotationController {
   @ApiBearerAuth()
   @Post(':id/send')
   @ApiOperation({ summary: 'Send quotation link to client email' })
-  send(@Request() req, @Param('id') id: string, @Body('email') email: string) {
-    return this.service.sendQuotationEmail(id, email, req.user.id);
+  send(@Request() req, @Param('id') id: string) {
+    return this.service.sendQuotationEmail(id, req.user.id);
   }
 
   // -----------------------------
@@ -121,5 +122,20 @@ export class QuotationController {
   @ApiOperation({ summary: 'Public quotation view (client link)' })
   publicView(@Param('id') id: string) {
     return this.service.publicView(id);
+  }
+
+  // -----------------------------
+  // CLIENT ACTION (Approve/Reject)
+  // -----------------------------
+  @Post(':id/respond')
+  @ApiOperation({ summary: 'Client approve/reject quotation' })
+  clientRespond(
+    @Param('id') id: string,
+    @Body() dto: ClientActionDto,
+    @Request() req,
+  ) {
+    const ip = req.ip || req.headers['x-forwarded-for'];
+    const agent = req.headers['user-agent'];
+    return this.service.clientRespond(id, dto, ip, agent);
   }
 }

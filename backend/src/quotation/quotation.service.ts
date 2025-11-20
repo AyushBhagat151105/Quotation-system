@@ -9,6 +9,7 @@ import { UpdateQuotationDto } from './dto/update-quotation.dto';
 import { EmailService } from 'src/email/email.service';
 import Decimal from 'decimal.js';
 import { QuotationStatus } from '@prisma/client';
+import { ClientActionDto, ClientActionStatus } from './dto/client-action.dto';
 
 @Injectable()
 export class QuotationService {
@@ -216,7 +217,7 @@ export class QuotationService {
   // -----------------------------------------------------
   // SEND QUOTATION EMAIL (admin protected)
   // -----------------------------------------------------
-  async sendQuotationEmail(id: string, email: string, adminId: string) {
+  async sendQuotationEmail(id: string, adminId: string) {
     const q = await this.prisma.quotation.findUnique({ where: { id } });
 
     if (!q) throw new NotFoundException('Quotation not found');
@@ -225,6 +226,63 @@ export class QuotationService {
       throw new ForbiddenException('Not your quotation');
     }
 
-    return this.emailService.sendQuotationEmail(id, email);
+    return this.emailService.sendQuotationEmail(id, q.clientEmail);
+  }
+
+  // -----------------------------------------------------
+  // CLIENT RESPONSE (Approve / Reject)
+  // -----------------------------------------------------
+  async clientRespond(
+    quotationId: string,
+    dto: ClientActionDto,
+    clientIp: string,
+    userAgent: string,
+  ) {
+    const quotation = await this.prisma.quotation.findUnique({
+      where: { id: quotationId },
+    });
+
+    if (!quotation) throw new NotFoundException('Quotation not found');
+
+    if (quotation.status !== 'PENDING') {
+      throw new ForbiddenException('Quotation already responded to');
+    }
+
+    // Save response
+    await this.prisma.quotationResponse.create({
+      data: {
+        quotationId,
+        status: dto.status,
+        rejectionComment: dto.comment ?? null,
+        clientIp,
+        userAgent,
+      },
+    });
+
+    // Update quotation status
+    await this.prisma.quotation.update({
+      where: { id: quotationId },
+      data: {
+        status: dto.status,
+      },
+    });
+
+    // (Optional) Notify admin by email
+    await this.emailService
+      .sendAdminNotification(
+        quotation.adminId,
+        quotationId,
+        dto.status,
+        dto.comment,
+      )
+      .catch(() => null); // don't break flow
+
+    return {
+      message:
+        dto.status === ClientActionStatus.APPROVED
+          ? 'Quotation approved successfully.'
+          : 'Quotation rejected successfully.',
+      status: dto.status,
+    };
   }
 }
