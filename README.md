@@ -31,7 +31,7 @@ APP_URL
 <h3>ENV for frontend</h3>
 
 ```.env
-BACKEND_URL
+VITE_API_URL
 ```
 
 ---
