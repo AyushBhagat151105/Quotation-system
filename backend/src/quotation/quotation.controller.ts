@@ -14,17 +14,13 @@ import { QuotationService } from './quotation.service';
 import { CreateQuotationDto } from './dto/create-quotation.dto';
 import { UpdateQuotationDto } from './dto/update-quotation.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { EmailService } from 'src/email/email.service';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { ClientActionDto } from './dto/client-action.dto';
 
 @ApiTags('Quotations')
 @Controller('quotations')
 export class QuotationController {
-  constructor(
-    private readonly service: QuotationService,
-    private emailService: EmailService,
-  ) {}
+  constructor(private readonly service: QuotationService) {}
 
   // -----------------------------
   // CREATE QUOTATION

@@ -271,7 +271,6 @@ export class QuotationService {
       throw new ForbiddenException('Quotation already responded to');
     }
 
-    // Save response
     await this.prisma.quotationResponse.create({
       data: {
         quotationId,
@@ -290,7 +289,6 @@ export class QuotationService {
       },
     });
 
-    // (Optional) Notify admin by email
     await this.emailService
       .sendAdminNotification(
         quotation.adminId,
@@ -298,7 +296,7 @@ export class QuotationService {
         dto.status,
         dto.comment,
       )
-      .catch(() => null); // don't break flow
+      .catch(() => null);
 
     return {
       message:

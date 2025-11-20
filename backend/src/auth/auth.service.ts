@@ -33,7 +33,6 @@ export class AuthService {
 
     await this.email.sendWelcomeEmail(dto.name, dto.email);
 
-
     return {
       message: 'User registered successfully',
       user: { id: user.id, email: user.email, name: user.name },
@@ -58,7 +57,7 @@ export class AuthService {
 
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { refreshToken: refresh_token },
+      data: { refreshToken: refresh_token, lastLogin: new Date() },
     });
 
     return {
