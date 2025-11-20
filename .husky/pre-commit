@@ -1,2 +1,6 @@
 cd backend
 pnpm run build
+cd ..
+
+cd frontend
+pnpm run build
