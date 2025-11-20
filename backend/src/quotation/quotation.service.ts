@@ -8,7 +8,6 @@ import { CreateQuotationDto } from './dto/create-quotation.dto';
 import { UpdateQuotationDto } from './dto/update-quotation.dto';
 import { EmailService } from 'src/email/email.service';
 import Decimal from 'decimal.js';
-import { QuotationStatus } from '@prisma/client';
 import { ClientActionDto, ClientActionStatus } from './dto/client-action.dto';
 
 @Injectable()
@@ -97,20 +96,44 @@ export class QuotationService {
   // UPDATE QUOTATION
   // -----------------------------------------------------
   async update(id: string, dto: UpdateQuotationDto, adminId: string) {
-    const exists = await this.prisma.quotation.findUnique({ where: { id } });
+    const exists = await this.prisma.quotation.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+
     if (!exists) throw new NotFoundException('Quotation not found');
 
-    // Ownership check
     if (exists.adminId !== adminId) {
       throw new ForbiddenException('Not your quotation');
     }
 
+    const allowedUpdates = dto;
+
     const updated = await this.prisma.quotation.update({
       where: { id },
       data: {
-        status: dto.status ? (dto.status as QuotationStatus) : undefined,
-        validityDate: dto.validityDate ? new Date(dto.validityDate) : undefined,
+        validityDate: allowedUpdates.validityDate
+          ? new Date(allowedUpdates.validityDate)
+          : undefined,
+
+        items: allowedUpdates.items
+          ? {
+              deleteMany: {},
+              create: allowedUpdates.items.map((it) => ({
+                itemName: it.itemName,
+                description: it.description ?? '',
+                quantity: it.quantity,
+                unitPrice: it.unitPrice,
+                tax: it.tax ?? '0.00',
+                totalPrice: new Decimal(it.quantity)
+                  .mul(it.unitPrice)
+                  .plus(it.tax ? new Decimal(it.tax) : 0)
+                  .toFixed(2),
+              })),
+            }
+          : undefined,
       },
+      include: { items: true },
     });
 
     await this.prisma.auditLog.create({
@@ -118,7 +141,7 @@ export class QuotationService {
         adminId,
         quotationId: id,
         action: 'UPDATE_QUOTATION',
-        details: `Updated fields: ${Object.keys(dto).join(', ')}`,
+        details: `Admin updated quotation details`,
       },
     });
 
