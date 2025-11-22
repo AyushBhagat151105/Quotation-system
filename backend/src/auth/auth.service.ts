@@ -2,15 +2,19 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto, LoginDto, ChangePasswordDto } from './dto/auth.dto';
 import { PrismaService } from 'src/prisma.service';
 import { EmailService } from 'src/email/email.service';
+import { AppService } from 'src/app.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AppService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
@@ -43,28 +47,35 @@ export class AuthService {
   // LOGIN
   // --------------------------
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
 
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+      if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const isMatch = await bcrypt.compare(dto.password, user.password);
-    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
+      const isMatch = await bcrypt.compare(dto.password, user.password);
+      if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
-    const access_token = this.jwt.sign({ sub: user.id, email: user.email });
-    const refresh_token = this.jwt.sign({ sub: user.id }, { expiresIn: '7d' });
+      const access_token = this.jwt.sign({ sub: user.id, email: user.email });
+      const refresh_token = this.jwt.sign(
+        { sub: user.id },
+        { expiresIn: '7d' },
+      );
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { refreshToken: refresh_token, lastLogin: new Date() },
-    });
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { refreshToken: refresh_token, lastLogin: new Date() },
+      });
 
-    return {
-      access_token,
-      refresh_token,
-      user: { id: user.id, email: user.email, name: user.name },
-    };
+      return {
+        access_token,
+        refresh_token,
+        user: { id: user.id, email: user.email, name: user.name },
+      };
+    } catch (error) {
+      this.logger.error('Error in login', error.stack);
+    }
   }
 
   // --------------------------
