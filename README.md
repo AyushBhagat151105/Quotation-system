@@ -18,6 +18,7 @@ use this script to start backend
 
 ```.env
 PORT
+LOCAL_IP
 DATABASE_URL
 JWT_SECRET
 MAILTRAP_HOST
