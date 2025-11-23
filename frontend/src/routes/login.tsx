@@ -3,38 +3,47 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuthStore } from '@/store/auth'
 import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import type { LoginSchemaType } from '@/schemas/auth'
+import { LoginDtoSchema } from '@/types/api'
 
 export const Route = createFileRoute('/login')({
-  component: RouteComponent,
+  component: LoginPage,
 })
 
-function RouteComponent() {
-  const user = useAuthStore((s) => s.user);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function LoginPage() {
+  const user = useAuthStore((s) => s.user)
 
-  if (user) return <Navigate to="/dashboard" />;
+  const form = useForm<LoginSchemaType>({
+    resolver: zodResolver(LoginDtoSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  })
 
-  const loginNow = async () => {
+  const loginNow = async (values: LoginSchemaType) => {
     try {
-      await authApi.login({ email, password });
-    } catch {
-      alert("Invalid credentials");
+      await authApi.login(values)
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Invalid credentials")
     }
-  };
+  }
+
+  if (user) return <Navigate to="/dashboard" />
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
 
-      {/* Background glow */}
       <div className="absolute inset-0 bg-linear-to-br from-pink-500/20 via-purple-600/10 to-blue-500/20 blur-3xl" />
 
-      {/* Auth card */}
-      <div
+      <form
+        onSubmit={form.handleSubmit(loginNow)}
         className="relative z-10 w-full max-w-md p-8 rounded-2xl 
-        backdrop-blur-2xl bg-white/5 
-        border border-white/10 shadow-2xl text-white"
+          backdrop-blur-2xl bg-white/5 
+          border border-white/10 shadow-2xl text-white space-y-4"
       >
         <h1 className="text-4xl font-extrabold text-center 
           bg-linear-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent
@@ -42,31 +51,33 @@ function RouteComponent() {
           Welcome Back
         </h1>
 
-        <p className="text-center text-gray-300 mt-2 mb-6">
+        <p className="text-center text-gray-300 mb-6">
           Login to access your dashboard
         </p>
 
         <div className="space-y-4">
           <Input
+            {...form.register("email")}
             placeholder="Email"
             className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-            onChange={(e) => setEmail(e.target.value)}
           />
+          {form.formState.errors.email && (
+            <p className="text-red-400 text-sm">{form.formState.errors.email.message}</p>
+          )}
 
           <Input
+            {...form.register("password")}
             type="password"
             placeholder="Password"
             className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-            onChange={(e) => setPassword(e.target.value)}
           />
+          {form.formState.errors.password && (
+            <p className="text-red-400 text-sm">{form.formState.errors.password.message}</p>
+          )}
 
           <Button
-            className="
-              w-full py-3 text-lg
-              bg-linear-to-r from-pink-500 to-purple-500
-              hover:opacity-90 transition-all shadow-lg
-            "
-            onClick={loginNow}
+            type="submit"
+            className="w-full py-3 text-lg bg-linear-to-r from-pink-500 to-purple-500 hover:opacity-90 transition-all shadow-lg"
           >
             Login
           </Button>
@@ -74,11 +85,11 @@ function RouteComponent() {
 
         <p className="text-center text-gray-400 mt-4">
           Don’t have an account?{" "}
-          <span className="text-pink-400 hover:underline cursor-pointer">
-            <Link to="/register">Register</Link>
-          </span>
+          <Link to="/register" className="text-pink-400 hover:underline">
+            Register
+          </Link>
         </p>
-      </div>
+      </form>
     </div>
-  );
+  )
 }

@@ -11,9 +11,17 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as QuotationsIndexRouteImport } from './routes/quotations/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as QuotationPublicIdResponseRouteImport } from './routes/quotation-public/$id-response'
+import { Route as QuotationPublicIdRouteImport } from './routes/quotation-public/$id'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as DashboardQuotationsIndexRouteImport } from './routes/dashboard/quotations/index'
+import { Route as DashboardQuotationsCreateRouteImport } from './routes/dashboard/quotations/create'
+import { Route as DashboardQuotationsIdIndexRouteImport } from './routes/dashboard/quotations/$id/index'
+import { Route as DashboardQuotationsIdSendRouteImport } from './routes/dashboard/quotations/$id/send'
+import { Route as DashboardQuotationsIdEditRouteImport } from './routes/dashboard/quotations/$id/edit'
+import { Route as DashboardQuotationsIdDeleteRouteImport } from './routes/dashboard/quotations/$id/delete'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -25,58 +33,177 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const QuotationsIndexRoute = QuotationsIndexRouteImport.update({
-  id: '/quotations/',
-  path: '/quotations/',
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuotationPublicIdResponseRoute =
+  QuotationPublicIdResponseRouteImport.update({
+    id: '/quotation-public/$id-response',
+    path: '/quotation-public/$id-response',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const QuotationPublicIdRoute = QuotationPublicIdRouteImport.update({
+  id: '/quotation-public/$id',
+  path: '/quotation-public/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/dashboard/settings',
+  path: '/dashboard/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardQuotationsIndexRoute =
+  DashboardQuotationsIndexRouteImport.update({
+    id: '/dashboard/quotations/',
+    path: '/dashboard/quotations/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DashboardQuotationsCreateRoute =
+  DashboardQuotationsCreateRouteImport.update({
+    id: '/dashboard/quotations/create',
+    path: '/dashboard/quotations/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DashboardQuotationsIdIndexRoute =
+  DashboardQuotationsIdIndexRouteImport.update({
+    id: '/dashboard/quotations/$id/',
+    path: '/dashboard/quotations/$id/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DashboardQuotationsIdSendRoute =
+  DashboardQuotationsIdSendRouteImport.update({
+    id: '/dashboard/quotations/$id/send',
+    path: '/dashboard/quotations/$id/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DashboardQuotationsIdEditRoute =
+  DashboardQuotationsIdEditRouteImport.update({
+    id: '/dashboard/quotations/$id/edit',
+    path: '/dashboard/quotations/$id/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DashboardQuotationsIdDeleteRoute =
+  DashboardQuotationsIdDeleteRouteImport.update({
+    id: '/dashboard/quotations/$id/delete',
+    path: '/dashboard/quotations/$id/delete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/quotations': typeof QuotationsIndexRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/quotation-public/$id': typeof QuotationPublicIdRoute
+  '/quotation-public/$id-response': typeof QuotationPublicIdResponseRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/quotations/create': typeof DashboardQuotationsCreateRoute
+  '/dashboard/quotations': typeof DashboardQuotationsIndexRoute
+  '/dashboard/quotations/$id/delete': typeof DashboardQuotationsIdDeleteRoute
+  '/dashboard/quotations/$id/edit': typeof DashboardQuotationsIdEditRoute
+  '/dashboard/quotations/$id/send': typeof DashboardQuotationsIdSendRoute
+  '/dashboard/quotations/$id': typeof DashboardQuotationsIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/quotations': typeof QuotationsIndexRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/quotation-public/$id': typeof QuotationPublicIdRoute
+  '/quotation-public/$id-response': typeof QuotationPublicIdResponseRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/quotations/create': typeof DashboardQuotationsCreateRoute
+  '/dashboard/quotations': typeof DashboardQuotationsIndexRoute
+  '/dashboard/quotations/$id/delete': typeof DashboardQuotationsIdDeleteRoute
+  '/dashboard/quotations/$id/edit': typeof DashboardQuotationsIdEditRoute
+  '/dashboard/quotations/$id/send': typeof DashboardQuotationsIdSendRoute
+  '/dashboard/quotations/$id': typeof DashboardQuotationsIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/quotations/': typeof QuotationsIndexRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/quotation-public/$id': typeof QuotationPublicIdRoute
+  '/quotation-public/$id-response': typeof QuotationPublicIdResponseRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/quotations/create': typeof DashboardQuotationsCreateRoute
+  '/dashboard/quotations/': typeof DashboardQuotationsIndexRoute
+  '/dashboard/quotations/$id/delete': typeof DashboardQuotationsIdDeleteRoute
+  '/dashboard/quotations/$id/edit': typeof DashboardQuotationsIdEditRoute
+  '/dashboard/quotations/$id/send': typeof DashboardQuotationsIdSendRoute
+  '/dashboard/quotations/$id/': typeof DashboardQuotationsIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/register' | '/quotations'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/dashboard/settings'
+    | '/quotation-public/$id'
+    | '/quotation-public/$id-response'
+    | '/dashboard'
+    | '/dashboard/quotations/create'
+    | '/dashboard/quotations'
+    | '/dashboard/quotations/$id/delete'
+    | '/dashboard/quotations/$id/edit'
+    | '/dashboard/quotations/$id/send'
+    | '/dashboard/quotations/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/register' | '/quotations'
-  id: '__root__' | '/' | '/dashboard' | '/login' | '/register' | '/quotations/'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/dashboard/settings'
+    | '/quotation-public/$id'
+    | '/quotation-public/$id-response'
+    | '/dashboard'
+    | '/dashboard/quotations/create'
+    | '/dashboard/quotations'
+    | '/dashboard/quotations/$id/delete'
+    | '/dashboard/quotations/$id/edit'
+    | '/dashboard/quotations/$id/send'
+    | '/dashboard/quotations/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/register'
+    | '/dashboard/settings'
+    | '/quotation-public/$id'
+    | '/quotation-public/$id-response'
+    | '/dashboard/'
+    | '/dashboard/quotations/create'
+    | '/dashboard/quotations/'
+    | '/dashboard/quotations/$id/delete'
+    | '/dashboard/quotations/$id/edit'
+    | '/dashboard/quotations/$id/send'
+    | '/dashboard/quotations/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
-  QuotationsIndexRoute: typeof QuotationsIndexRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
+  QuotationPublicIdRoute: typeof QuotationPublicIdRoute
+  QuotationPublicIdResponseRoute: typeof QuotationPublicIdResponseRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardQuotationsCreateRoute: typeof DashboardQuotationsCreateRoute
+  DashboardQuotationsIndexRoute: typeof DashboardQuotationsIndexRoute
+  DashboardQuotationsIdDeleteRoute: typeof DashboardQuotationsIdDeleteRoute
+  DashboardQuotationsIdEditRoute: typeof DashboardQuotationsIdEditRoute
+  DashboardQuotationsIdSendRoute: typeof DashboardQuotationsIdSendRoute
+  DashboardQuotationsIdIndexRoute: typeof DashboardQuotationsIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -95,13 +222,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -109,11 +229,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/quotations/': {
-      id: '/quotations/'
-      path: '/quotations'
-      fullPath: '/quotations'
-      preLoaderRoute: typeof QuotationsIndexRouteImport
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quotation-public/$id-response': {
+      id: '/quotation-public/$id-response'
+      path: '/quotation-public/$id-response'
+      fullPath: '/quotation-public/$id-response'
+      preLoaderRoute: typeof QuotationPublicIdResponseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quotation-public/$id': {
+      id: '/quotation-public/$id'
+      path: '/quotation-public/$id'
+      fullPath: '/quotation-public/$id'
+      preLoaderRoute: typeof QuotationPublicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/dashboard/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/quotations/': {
+      id: '/dashboard/quotations/'
+      path: '/dashboard/quotations'
+      fullPath: '/dashboard/quotations'
+      preLoaderRoute: typeof DashboardQuotationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/quotations/create': {
+      id: '/dashboard/quotations/create'
+      path: '/dashboard/quotations/create'
+      fullPath: '/dashboard/quotations/create'
+      preLoaderRoute: typeof DashboardQuotationsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/quotations/$id/': {
+      id: '/dashboard/quotations/$id/'
+      path: '/dashboard/quotations/$id'
+      fullPath: '/dashboard/quotations/$id'
+      preLoaderRoute: typeof DashboardQuotationsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/quotations/$id/send': {
+      id: '/dashboard/quotations/$id/send'
+      path: '/dashboard/quotations/$id/send'
+      fullPath: '/dashboard/quotations/$id/send'
+      preLoaderRoute: typeof DashboardQuotationsIdSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/quotations/$id/edit': {
+      id: '/dashboard/quotations/$id/edit'
+      path: '/dashboard/quotations/$id/edit'
+      fullPath: '/dashboard/quotations/$id/edit'
+      preLoaderRoute: typeof DashboardQuotationsIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/quotations/$id/delete': {
+      id: '/dashboard/quotations/$id/delete'
+      path: '/dashboard/quotations/$id/delete'
+      fullPath: '/dashboard/quotations/$id/delete'
+      preLoaderRoute: typeof DashboardQuotationsIdDeleteRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -121,10 +304,18 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
-  QuotationsIndexRoute: QuotationsIndexRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
+  QuotationPublicIdRoute: QuotationPublicIdRoute,
+  QuotationPublicIdResponseRoute: QuotationPublicIdResponseRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardQuotationsCreateRoute: DashboardQuotationsCreateRoute,
+  DashboardQuotationsIndexRoute: DashboardQuotationsIndexRoute,
+  DashboardQuotationsIdDeleteRoute: DashboardQuotationsIdDeleteRoute,
+  DashboardQuotationsIdEditRoute: DashboardQuotationsIdEditRoute,
+  DashboardQuotationsIdSendRoute: DashboardQuotationsIdSendRoute,
+  DashboardQuotationsIdIndexRoute: DashboardQuotationsIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

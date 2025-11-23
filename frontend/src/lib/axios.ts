@@ -1,69 +1,67 @@
 import axios from "axios";
+import { toast } from "sonner";
 import Cookies from "js-cookie";
-import { useAuthStore } from "../store/auth";
+import { useAuthStore } from "@/store/auth";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1",
   withCredentials: true,
 });
 
-// -------- Attach Bearer token --------
+// ------------------------------
+// ADD ACCESS TOKEN
+// ------------------------------
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// -------- Auto Refresh Logic --------
-let refreshing = false;
-let queue: any[] = [];
-
+// ------------------------------
+// GLOBAL RESPONSE HANDLER
+// ------------------------------
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    if (res.data?.message) {
+      toast.success(res.data.message);
+    }
+    return res;
+  },
 
   async (error) => {
-    const original = error.config;
+    const status = error?.response?.status;
+    const msg =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      "Something went wrong";
 
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true;
+    if (status === 401) {
+      const refreshToken = Cookies.get("refresh_token");
 
-      if (refreshing) {
-        return new Promise((resolve) => {
-          queue.push(resolve);
-        }).then((token) => {
-          original.headers.Authorization = `Bearer ${token}`;
-          return api(original);
-        });
+      if (!refreshToken) {
+        toast.error("Session expired. Please login again.");
+        useAuthStore.getState().logout();
+        return Promise.reject(error);
       }
 
-      refreshing = true;
-
       try {
-        const rToken = Cookies.get("refresh_token");
-        if (!rToken) throw error;
-
-        const res = await axios.post(
+        const refreshRes = await axios.post(
           `${import.meta.env.VITE_API_URL}/auth/refresh`,
-          { refreshToken: rToken },
+          { refreshToken },
           { withCredentials: true }
         );
 
-        const newToken = res.data.access_token;
-        useAuthStore.getState().setAccessToken(newToken);
+        useAuthStore.getState().setAccessToken(refreshRes.data.access_token);
 
-        queue.forEach((cb) => cb(newToken));
-        queue = [];
-        refreshing = false;
-
-        original.headers.Authorization = `Bearer ${newToken}`;
-        return api(original);
-      } catch (err) {
-        refreshing = false;
+        error.config.headers.Authorization = `Bearer ${refreshRes.data.access_token}`;
+        return api.request(error.config);
+      } catch {
+        toast.error("Session expired. Please login again.");
         useAuthStore.getState().logout();
-        return Promise.reject(err);
       }
     }
 
+    toast.error(msg);
     return Promise.reject(error);
   }
 );

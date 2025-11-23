@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 
 import * as TanStackQueryProvider from './integrations/tanstack-query/root-provider.tsx'
-
+import { Toaster } from 'sonner';
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
@@ -51,6 +51,7 @@ if (rootElement && !rootElement.innerHTML) {
       <TanStackQueryProvider.Provider {...TanStackQueryProviderContext}>
         <AppInitializer />
         <RouterProvider router={router} />
+        <Toaster richColors position='bottom-right' />
       </TanStackQueryProvider.Provider>
     </StrictMode>,
   )

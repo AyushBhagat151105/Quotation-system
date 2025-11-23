@@ -142,12 +142,6 @@ export default function Header() {
                 Dashboard
               </Link>
 
-              <Link
-                to="/quotations"
-                className="block text-lg hover:text-purple-400"
-              >
-                Quotations
-              </Link>
 
               <button
                 onClick={() => {
