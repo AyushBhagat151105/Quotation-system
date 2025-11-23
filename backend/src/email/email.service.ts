@@ -78,7 +78,7 @@ export class EmailService {
       throw new InternalServerErrorException('Quotation not found');
     }
 
-    const publicLink = `${process.env.APP_URL}/quotations/${quotationId}/public`;
+    const publicLink = `${process.env.APP_URL}/quotation-public/${quotationId}`;
 
     const html = await this.buildQuotationEmailHtml(quotation, publicLink);
 

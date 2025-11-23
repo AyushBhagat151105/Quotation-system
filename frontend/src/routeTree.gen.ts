@@ -13,15 +13,12 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as QuotationPublicIdResponseRouteImport } from './routes/quotation-public/$id-response'
 import { Route as QuotationPublicIdRouteImport } from './routes/quotation-public/$id'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardQuotationsIndexRouteImport } from './routes/dashboard/quotations/index'
 import { Route as DashboardQuotationsCreateRouteImport } from './routes/dashboard/quotations/create'
 import { Route as DashboardQuotationsIdIndexRouteImport } from './routes/dashboard/quotations/$id/index'
-import { Route as DashboardQuotationsIdSendRouteImport } from './routes/dashboard/quotations/$id/send'
 import { Route as DashboardQuotationsIdEditRouteImport } from './routes/dashboard/quotations/$id/edit'
-import { Route as DashboardQuotationsIdDeleteRouteImport } from './routes/dashboard/quotations/$id/delete'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -43,12 +40,6 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const QuotationPublicIdResponseRoute =
-  QuotationPublicIdResponseRouteImport.update({
-    id: '/quotation-public/$id-response',
-    path: '/quotation-public/$id-response',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const QuotationPublicIdRoute = QuotationPublicIdRouteImport.update({
   id: '/quotation-public/$id',
   path: '/quotation-public/$id',
@@ -77,22 +68,10 @@ const DashboardQuotationsIdIndexRoute =
     path: '/dashboard/quotations/$id/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const DashboardQuotationsIdSendRoute =
-  DashboardQuotationsIdSendRouteImport.update({
-    id: '/dashboard/quotations/$id/send',
-    path: '/dashboard/quotations/$id/send',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const DashboardQuotationsIdEditRoute =
   DashboardQuotationsIdEditRouteImport.update({
     id: '/dashboard/quotations/$id/edit',
     path: '/dashboard/quotations/$id/edit',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const DashboardQuotationsIdDeleteRoute =
-  DashboardQuotationsIdDeleteRouteImport.update({
-    id: '/dashboard/quotations/$id/delete',
-    path: '/dashboard/quotations/$id/delete',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -102,13 +81,10 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/quotation-public/$id': typeof QuotationPublicIdRoute
-  '/quotation-public/$id-response': typeof QuotationPublicIdResponseRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/quotations/create': typeof DashboardQuotationsCreateRoute
   '/dashboard/quotations': typeof DashboardQuotationsIndexRoute
-  '/dashboard/quotations/$id/delete': typeof DashboardQuotationsIdDeleteRoute
   '/dashboard/quotations/$id/edit': typeof DashboardQuotationsIdEditRoute
-  '/dashboard/quotations/$id/send': typeof DashboardQuotationsIdSendRoute
   '/dashboard/quotations/$id': typeof DashboardQuotationsIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -117,13 +93,10 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/quotation-public/$id': typeof QuotationPublicIdRoute
-  '/quotation-public/$id-response': typeof QuotationPublicIdResponseRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/quotations/create': typeof DashboardQuotationsCreateRoute
   '/dashboard/quotations': typeof DashboardQuotationsIndexRoute
-  '/dashboard/quotations/$id/delete': typeof DashboardQuotationsIdDeleteRoute
   '/dashboard/quotations/$id/edit': typeof DashboardQuotationsIdEditRoute
-  '/dashboard/quotations/$id/send': typeof DashboardQuotationsIdSendRoute
   '/dashboard/quotations/$id': typeof DashboardQuotationsIdIndexRoute
 }
 export interface FileRoutesById {
@@ -133,13 +106,10 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/quotation-public/$id': typeof QuotationPublicIdRoute
-  '/quotation-public/$id-response': typeof QuotationPublicIdResponseRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/quotations/create': typeof DashboardQuotationsCreateRoute
   '/dashboard/quotations/': typeof DashboardQuotationsIndexRoute
-  '/dashboard/quotations/$id/delete': typeof DashboardQuotationsIdDeleteRoute
   '/dashboard/quotations/$id/edit': typeof DashboardQuotationsIdEditRoute
-  '/dashboard/quotations/$id/send': typeof DashboardQuotationsIdSendRoute
   '/dashboard/quotations/$id/': typeof DashboardQuotationsIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -150,13 +120,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/dashboard/settings'
     | '/quotation-public/$id'
-    | '/quotation-public/$id-response'
     | '/dashboard'
     | '/dashboard/quotations/create'
     | '/dashboard/quotations'
-    | '/dashboard/quotations/$id/delete'
     | '/dashboard/quotations/$id/edit'
-    | '/dashboard/quotations/$id/send'
     | '/dashboard/quotations/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,13 +132,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/dashboard/settings'
     | '/quotation-public/$id'
-    | '/quotation-public/$id-response'
     | '/dashboard'
     | '/dashboard/quotations/create'
     | '/dashboard/quotations'
-    | '/dashboard/quotations/$id/delete'
     | '/dashboard/quotations/$id/edit'
-    | '/dashboard/quotations/$id/send'
     | '/dashboard/quotations/$id'
   id:
     | '__root__'
@@ -180,13 +144,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/dashboard/settings'
     | '/quotation-public/$id'
-    | '/quotation-public/$id-response'
     | '/dashboard/'
     | '/dashboard/quotations/create'
     | '/dashboard/quotations/'
-    | '/dashboard/quotations/$id/delete'
     | '/dashboard/quotations/$id/edit'
-    | '/dashboard/quotations/$id/send'
     | '/dashboard/quotations/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -196,13 +157,10 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   QuotationPublicIdRoute: typeof QuotationPublicIdRoute
-  QuotationPublicIdResponseRoute: typeof QuotationPublicIdResponseRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardQuotationsCreateRoute: typeof DashboardQuotationsCreateRoute
   DashboardQuotationsIndexRoute: typeof DashboardQuotationsIndexRoute
-  DashboardQuotationsIdDeleteRoute: typeof DashboardQuotationsIdDeleteRoute
   DashboardQuotationsIdEditRoute: typeof DashboardQuotationsIdEditRoute
-  DashboardQuotationsIdSendRoute: typeof DashboardQuotationsIdSendRoute
   DashboardQuotationsIdIndexRoute: typeof DashboardQuotationsIdIndexRoute
 }
 
@@ -234,13 +192,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/quotation-public/$id-response': {
-      id: '/quotation-public/$id-response'
-      path: '/quotation-public/$id-response'
-      fullPath: '/quotation-public/$id-response'
-      preLoaderRoute: typeof QuotationPublicIdResponseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quotation-public/$id': {
@@ -278,25 +229,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardQuotationsIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/quotations/$id/send': {
-      id: '/dashboard/quotations/$id/send'
-      path: '/dashboard/quotations/$id/send'
-      fullPath: '/dashboard/quotations/$id/send'
-      preLoaderRoute: typeof DashboardQuotationsIdSendRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard/quotations/$id/edit': {
       id: '/dashboard/quotations/$id/edit'
       path: '/dashboard/quotations/$id/edit'
       fullPath: '/dashboard/quotations/$id/edit'
       preLoaderRoute: typeof DashboardQuotationsIdEditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/quotations/$id/delete': {
-      id: '/dashboard/quotations/$id/delete'
-      path: '/dashboard/quotations/$id/delete'
-      fullPath: '/dashboard/quotations/$id/delete'
-      preLoaderRoute: typeof DashboardQuotationsIdDeleteRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -308,13 +245,10 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   QuotationPublicIdRoute: QuotationPublicIdRoute,
-  QuotationPublicIdResponseRoute: QuotationPublicIdResponseRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardQuotationsCreateRoute: DashboardQuotationsCreateRoute,
   DashboardQuotationsIndexRoute: DashboardQuotationsIndexRoute,
-  DashboardQuotationsIdDeleteRoute: DashboardQuotationsIdDeleteRoute,
   DashboardQuotationsIdEditRoute: DashboardQuotationsIdEditRoute,
-  DashboardQuotationsIdSendRoute: DashboardQuotationsIdSendRoute,
   DashboardQuotationsIdIndexRoute: DashboardQuotationsIdIndexRoute,
 }
 export const routeTree = rootRouteImport

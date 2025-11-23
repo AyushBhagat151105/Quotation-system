@@ -52,10 +52,14 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT as string);
 
-  logger.log(`Server is running on http://localhost:${process.env.PORT}`);
-  logger.log(`Docs available at http://localhost:${process.env.PORT}/docs`);
   logger.log(
-    `OpenAPI JSON at http://localhost:${process.env.PORT}/openapi.json`,
+    `Server is running on http://${process.env.LOCAL_IP}:${process.env.PORT}`,
+  );
+  logger.log(
+    `Docs available at http://${process.env.LOCAL_IP}:${process.env.PORT}/docs`,
+  );
+  logger.log(
+    `OpenAPI JSON at http://${process.env.LOCAL_IP}:${process.env.PORT}/openapi.json`,
   );
 }
 bootstrap();
