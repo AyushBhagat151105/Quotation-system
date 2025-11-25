@@ -3,8 +3,10 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { useAuthStore } from "@/store/auth";
 
+console.log(`${import.meta.env.VITE_API_URL}`);
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1",
+  baseURL: import.meta.env.VITE_API_URL as string,
   withCredentials: true,
 });
 
