@@ -1,2 +1,6 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "npm-9_x", "openssl"]
+nixPkgs = ["nodejs_22", "bash"]
+
+[variables]
+NODE_ENV = "production"
+NIXPACKS_NODE_VERSION = "22.12.0"
