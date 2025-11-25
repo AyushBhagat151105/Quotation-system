@@ -3,6 +3,7 @@ import QuotationTable from '@/components/dashboard/QuotationTable'
 import StatsCards from '@/components/dashboard/StatsCards'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
@@ -15,7 +16,11 @@ function RouteComponent() {
   })
 
   if (isLoading)
-    return <p className="text-white p-8 animate-pulse">Loading dashboard...</p>
+    return (
+      <div className="flex items-center justify-center p-10">
+        <Loader2 className="animate-spin text-white" />
+      </div>
+    )
 
   if (error)
     return (

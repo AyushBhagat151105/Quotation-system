@@ -17,6 +17,7 @@ function RouteComponent() {
   const [reasonModal, setReasonModal] = useState(false);
   const [rejectMessage, setRejectMessage] = useState("");
 
+
   const query = useQuery({
     queryKey: ["quotation-public", id],
     queryFn: () => quotationApi.publicView(id).then((r) => r.data),
@@ -152,8 +153,13 @@ function RouteComponent() {
                       comment: rejectMessage,
                     })
                   }
+                  disabled={isLoading}
                 >
-                  Submit
+                  {isLoading ? (
+                    <Loader2 className="animate-spin w-5 h-5 text-white" />
+                  ) : (
+                    "Submit"
+                  )}
                 </Button>
               </div>
             </motion.div>

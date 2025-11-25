@@ -14,8 +14,12 @@ import {
     type SubmitHandler,
 } from "react-hook-form";
 import { useNavigate } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export default function CreateQuotationForm() {
+    const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
     const form = useForm<CreateQuotationDto>({
         resolver: zodResolver(CreateQuotationDtoSchema),
@@ -43,14 +47,21 @@ export default function CreateQuotationForm() {
     });
 
     const onSubmit: SubmitHandler<CreateQuotationDto> = async (values) => {
-        const q = await quotationApi.create(values);
+        try {
+            setLoading(true);
+            const q = await quotationApi.create(values);
 
+            if (!q) return;
 
-        navigate({
-            to: "/dashboard/quotations/$id",
-            params: { id: q.id },
-        });
+            navigate({
+                to: "/dashboard/quotations/$id",
+                params: { id: q.id },
+            });
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     return (
         <form
@@ -161,9 +172,17 @@ export default function CreateQuotationForm() {
             </div>
 
             {/* Submit Button */}
-            <Button className="w-full py-3 text-lg bg-linear-to-r from-pink-500 to-purple-600 hover:opacity-90">
-                Create Quotation
+            <Button
+                className="w-full py-3 text-lg bg-linear-to-r from-pink-500 to-purple-600 hover:opacity-90"
+                disabled={loading}
+            >
+                {loading ? (
+                    <Loader2 className="animate-spin w-5 h-5 text-white" />
+                ) : (
+                    "Create Quotation"
+                )}
             </Button>
+
         </form>
     );
 }
