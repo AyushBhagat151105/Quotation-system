@@ -46,7 +46,7 @@ async function bootstrap() {
       },
       searchHotKey: 'h',
       theme: 'bluePlanet',
-      showToolbar: 'localhost',
+      // showToolbar: 'never',
     }),
   );
 
