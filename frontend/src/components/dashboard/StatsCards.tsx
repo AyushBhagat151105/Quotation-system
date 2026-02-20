@@ -1,3 +1,5 @@
+import { FileText, Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+
 interface StatsCardsProps {
     stats: {
         total: number;
@@ -10,22 +12,57 @@ interface StatsCardsProps {
 
 export default function StatsCards({ stats }: StatsCardsProps) {
     const cards = [
-        { label: "Total Quotations", value: stats.total, color: "from-pink-500 to-purple-500" },
-        { label: "Pending", value: stats.pending, color: "from-yellow-500 to-orange-500" },
-        { label: "Approved", value: stats.approved, color: "from-green-500 to-emerald-500" },
-        { label: "Rejected", value: stats.rejected, color: "from-red-500 to-pink-500" },
-        { label: "Expired", value: stats.expired, color: "from-gray-500 to-gray-700" },
+        {
+            label: "Total Quotations",
+            value: stats.total,
+            icon: FileText,
+            iconColor: "text-emerald-400",
+            iconBg: "bg-emerald-500/10",
+        },
+        {
+            label: "Pending",
+            value: stats.pending,
+            icon: Clock,
+            iconColor: "text-yellow-400",
+            iconBg: "bg-yellow-500/10",
+        },
+        {
+            label: "Approved",
+            value: stats.approved,
+            icon: CheckCircle,
+            iconColor: "text-emerald-400",
+            iconBg: "bg-emerald-500/10",
+        },
+        {
+            label: "Rejected",
+            value: stats.rejected,
+            icon: XCircle,
+            iconColor: "text-red-400",
+            iconBg: "bg-red-500/10",
+        },
+        {
+            label: "Expired",
+            value: stats.expired,
+            icon: AlertTriangle,
+            iconColor: "text-slate-400",
+            iconBg: "bg-slate-500/10",
+        },
     ];
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {cards.map((c) => (
                 <div
                     key={c.label}
-                    className={`p-6 rounded-xl bg-linear-to-br ${c.color} text-white shadow-xl`}
+                    className="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors"
                 >
-                    <p className="text-sm opacity-80">{c.label}</p>
-                    <h2 className="text-3xl font-bold">{c.value}</h2>
+                    <div className="flex items-center justify-between mb-3">
+                        <p className="text-sm text-slate-400">{c.label}</p>
+                        <div className={`w-8 h-8 rounded-lg ${c.iconBg} flex items-center justify-center`}>
+                            <c.icon size={16} className={c.iconColor} />
+                        </div>
+                    </div>
+                    <h2 className="text-3xl font-bold text-white">{c.value}</h2>
                 </div>
             ))}
         </div>

@@ -21,7 +21,7 @@ import { quotationApi } from "@/api/quotation";
 import { Link } from "@tanstack/react-router";
 import Pagination from "./Pagination";
 import type { QuotationLite } from "@/types/quotation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, Pencil, Trash2 } from "lucide-react";
 
 export default function QuotationTable() {
     const [sort, setSort] = useState<any>([]);
@@ -46,38 +46,38 @@ export default function QuotationTable() {
     if (query.isLoading)
         return (
             <div className="flex items-center justify-center p-10">
-                <Loader2 className="animate-spin text-white" />
+                <Loader2 className="animate-spin text-slate-400" />
             </div>
         );
 
     if (!data) return null;
 
     return (
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-xl">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
             {/* Header row */}
-            <div className="mb-4 flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-white">Quotations</h2>
-
+            <div className="px-6 py-4 flex justify-between items-center border-b border-slate-800">
+                <h2 className="text-lg font-semibold text-white">Quotations</h2>
                 <Link
                     to="/dashboard/quotations/create"
-                    className="px-4 py-2 bg-linear-to-r from-pink-500 to-purple-600 rounded-lg text-white shadow hover:opacity-90"
+                    className="px-4 py-2 text-sm bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-medium transition-colors"
                 >
                     + Create
                 </Link>
             </div>
 
+            {/* Desktop table */}
             <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full text-white text-sm min-w-[600px]">
-                    <thead className="bg-white/5">
+                <table className="w-full text-sm min-w-[600px]">
+                    <thead>
                         {table.getHeaderGroups().map((hg) => (
-                            <tr key={hg.id} className="border-b border-white/10">
+                            <tr key={hg.id} className="border-b border-slate-800 bg-slate-800/30">
                                 {hg.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="p-3 cursor-pointer select-none whitespace-nowrap"
+                                        className="px-6 py-3 text-left cursor-pointer select-none whitespace-nowrap text-slate-400 text-xs uppercase tracking-wider font-medium"
                                         onClick={header.column.getToggleSortingHandler()}
                                     >
-                                        <div className="flex items-center gap-2 opacity-80">
+                                        <div className="flex items-center gap-1.5">
                                             {flexRender(header.column.columnDef.header, header.getContext())}
                                             {{
                                                 asc: "↑",
@@ -91,13 +91,14 @@ export default function QuotationTable() {
                     </thead>
 
                     <tbody>
-                        {table.getRowModel().rows.map((row) => (
+                        {table.getRowModel().rows.map((row, idx) => (
                             <tr
                                 key={row.id}
-                                className="border-b border-white/10 hover:bg-white/5 transition-colors"
+                                className={`border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors
+                  ${idx % 2 === 1 ? "bg-slate-800/10" : ""}`}
                             >
                                 {row.getVisibleCells().map((cell) => (
-                                    <td key={cell.id} className="p-3 whitespace-nowrap">
+                                    <td key={cell.id} className="px-6 py-3.5 whitespace-nowrap text-slate-300">
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </td>
                                 ))}
@@ -107,46 +108,42 @@ export default function QuotationTable() {
                 </table>
             </div>
 
-            <div className="sm:hidden space-y-4">
+            {/* Mobile cards */}
+            <div className="sm:hidden divide-y divide-slate-800">
                 {table.getRowModel().rows.map((row) => {
                     const q = row.original;
                     return (
-                        <div
-                            key={row.id}
-                            className="p-4 bg-white/5 border border-white/10 rounded-lg shadow flex flex-col gap-3"
-                        >
-                            <div className="flex justify-between">
-                                <span className="font-bold text-white text-lg">{q.clientName}</span>
-                                <span className="text-sm opacity-80">{q.status}</span>
+                        <div key={row.id} className="p-4 flex flex-col gap-3">
+                            <div className="flex justify-between items-start">
+                                <span className="font-semibold text-white">{q.clientName}</span>
+                                <StatusBadge status={q.status} />
                             </div>
 
-                            <div className="text-white opacity-80 text-sm">
-                                Total: <span className="font-semibold">₹{q.totalAmount}</span>
+                            <div className="text-slate-400 text-sm">
+                                Total: <span className="font-medium text-white">₹{q.totalAmount}</span>
                             </div>
 
-                            <div className="flex gap-3 text-sm pt-2">
+                            <div className="flex gap-3 pt-1">
                                 <Link
                                     to="/dashboard/quotations/$id"
                                     params={{ id: q.id }}
-                                    className="text-blue-400"
+                                    className="text-sm text-emerald-400 hover:text-emerald-300"
                                 >
                                     View
                                 </Link>
-
                                 <Link
                                     to="/dashboard/quotations/$id/edit"
                                     params={{ id: q.id }}
-                                    className="text-purple-400"
+                                    className="text-sm text-blue-400 hover:text-blue-300"
                                 >
                                     Edit
                                 </Link>
-
                                 <button
                                     onClick={async () => {
                                         await quotationApi.remove(q.id);
                                         table.options.meta?.refetch?.();
                                     }}
-                                    className="text-red-400"
+                                    className="text-sm text-red-400 hover:text-red-300"
                                 >
                                     Delete
                                 </button>
@@ -156,8 +153,28 @@ export default function QuotationTable() {
                 })}
             </div>
 
-            <Pagination total={data.count} />
+            <div className="px-6 py-3 border-t border-slate-800">
+                <Pagination total={data.count} />
+            </div>
         </div>
+    );
+}
+
+function StatusBadge({ status }: { status: string }) {
+    const styles: Record<string, string> = {
+        APPROVED: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+        REJECTED: "bg-red-500/15 text-red-400 border-red-500/20",
+        EXPIRED: "bg-slate-500/15 text-slate-400 border-slate-500/20",
+        PENDING: "bg-yellow-500/15 text-yellow-400 border-yellow-500/20",
+        SENT: "bg-blue-500/15 text-blue-400 border-blue-500/20",
+    };
+
+    return (
+        <span
+            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] || styles.PENDING}`}
+        >
+            {status}
+        </span>
     );
 }
 
@@ -166,30 +183,18 @@ const columns: ColumnDef<QuotationLite>[] = [
         accessorKey: "clientName",
         header: "Client",
         cell: (info) => (
-            <span className="font-semibold text-white/90">{info.row.original.clientName}</span>
+            <span className="font-medium text-white">{info.row.original.clientName}</span>
         ),
     },
     {
         accessorKey: "totalAmount",
         header: "Total",
-        cell: (info) => <span>₹{info.row.original.totalAmount}</span>,
+        cell: (info) => <span className="text-slate-300">₹{info.row.original.totalAmount}</span>,
     },
     {
         accessorKey: "status",
         header: "Status",
-        cell: (info) => {
-            const s = info.row.original.status;
-            const color =
-                s === "APPROVED"
-                    ? "text-green-400"
-                    : s === "REJECTED"
-                        ? "text-red-400"
-                        : s === "EXPIRED"
-                            ? "text-gray-400"
-                            : "text-yellow-300";
-
-            return <span className={color}>{s}</span>;
-        },
+        cell: (info) => <StatusBadge status={info.row.original.status} />,
     },
     {
         id: "actions",
@@ -198,13 +203,23 @@ const columns: ColumnDef<QuotationLite>[] = [
             const id = info.row.original.id;
 
             return (
-                <div className="flex gap-3 text-sm">
-                    <Link to="/dashboard/quotations/$id" params={{ id }} className="text-blue-400">
-                        View
+                <div className="flex items-center gap-1">
+                    <Link
+                        to="/dashboard/quotations/$id"
+                        params={{ id }}
+                        className="p-1.5 rounded-md text-slate-400 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
+                        title="View"
+                    >
+                        <Eye size={16} />
                     </Link>
 
-                    <Link to="/dashboard/quotations/$id/edit" params={{ id }} className="text-purple-400">
-                        Edit
+                    <Link
+                        to="/dashboard/quotations/$id/edit"
+                        params={{ id }}
+                        className="p-1.5 rounded-md text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition-colors"
+                        title="Edit"
+                    >
+                        <Pencil size={16} />
                     </Link>
 
                     <button
@@ -212,9 +227,10 @@ const columns: ColumnDef<QuotationLite>[] = [
                             await quotationApi.remove(id);
                             info.table.options.meta?.refetch?.();
                         }}
-                        className="text-red-400"
+                        className="p-1.5 rounded-md text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
+                        title="Delete"
                     >
-                        Delete
+                        <Trash2 size={16} />
                     </button>
                 </div>
             );

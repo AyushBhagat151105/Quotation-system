@@ -1,37 +1,66 @@
 import { motion } from "motion/react";
-import { FileText, Send, Check } from "lucide-react";
+import { FileText, Send, CheckCircle } from "lucide-react";
 
 const steps = [
-    { icon: FileText, title: "Create Quotation", text: "Add items, pricing, validity & notes." },
-    { icon: Send, title: "Send to Client", text: "One click email delivery with smart tracking." },
-    { icon: Check, title: "Get Approval", text: "Clients can approve/reject with comments." },
+    {
+        icon: FileText,
+        title: "Create Quotation",
+        text: "Add client info, items, pricing, validity dates, and notes.",
+    },
+    {
+        icon: Send,
+        title: "Send to Client",
+        text: "One-click email delivery with a professional quotation page.",
+    },
+    {
+        icon: CheckCircle,
+        title: "Get Approval",
+        text: "Clients approve or reject with comments — tracked in real time.",
+    },
 ];
 
 export default function WorkflowSection() {
     return (
-        <section className="py-24 bg-linear-to-b from-black to-purple-900/20">
-            <h2 className="text-center text-white text-4xl font-bold mb-6">How It Works</h2>
-            <p className="text-center text-white/70 max-w-2xl mx-auto mb-14">
-                Your quotation process made simple, smooth, and delightful.
-            </p>
+        <section id="how-it-works" className="py-24 relative">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent" />
 
-            <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-6">
-                {steps.map((s, i) => (
-                    <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: i * 0.1 }}
-                        className="text-center"
-                    >
-                        <div className="w-16 h-16 mx-auto bg-white/10 backdrop-blur-lg rounded-2xl flex items-center justify-center border border-white/20 mb-6">
-                            <s.icon size={28} className="text-white" />
-                        </div>
+            <div className="max-w-5xl mx-auto px-4">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white">
+                        How it works
+                    </h2>
+                    <p className="mt-4 text-slate-400 max-w-xl mx-auto">
+                        Your quotation process made simple, smooth, and delightful.
+                    </p>
+                </div>
 
-                        <h3 className="text-xl font-semibold text-white mb-2">{s.title}</h3>
-                        <p className="text-white/70 text-sm">{s.text}</p>
-                    </motion.div>
-                ))}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                    {/* Connecting line (desktop only) */}
+                    <div className="hidden md:block absolute top-10 left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] h-px border-t-2 border-dashed border-slate-700" />
+
+                    {steps.map((s, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: i * 0.15 }}
+                            viewport={{ once: true }}
+                            className="text-center relative"
+                        >
+                            {/* Step number circle */}
+                            <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mb-5 relative">
+                                <s.icon size={28} className="text-emerald-400" />
+                                {/* Step number badge */}
+                                <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">
+                                    {i + 1}
+                                </span>
+                            </div>
+
+                            <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed max-w-xs mx-auto">{s.text}</p>
+                        </motion.div>
+                    ))}
+                </div>
             </div>
         </section>
     );

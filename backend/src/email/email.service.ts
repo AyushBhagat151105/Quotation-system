@@ -36,38 +36,117 @@ export class EmailService {
     }
   }
 
-  // -------------------------
-  // WELCOME EMAIL
-  // -------------------------
-  async sendWelcomeEmail(name: string, email: string) {
-    const html = `
-      <h2>Welcome, ${name}! 🎉</h2>
-      <p>Your account has been created successfully.</p>
-      <p>We're glad to have you onboard.</p>
-    `;
+  // ─── Shared wrapper ───
+  private wrap(body: string) {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin:0;padding:0;background:#0f172a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+      <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+        <!-- Logo -->
+        <div style="text-align:center;margin-bottom:32px;">
+          <span style="font-size:22px;font-weight:700;color:#34d399;letter-spacing:-0.5px;">
+            Quotation<span style="color:#f1f5f9;">System</span>
+          </span>
+        </div>
 
-    return this.sendEmail(email, 'Welcome to our platform!', html);
+        <!-- Card -->
+        <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;overflow:hidden;">
+          ${body}
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align:center;margin-top:32px;">
+          <p style="font-size:12px;color:#64748b;margin:0;">
+            © ${new Date().getFullYear()} QuotationSystem. All rights reserved.
+          </p>
+          <p style="font-size:11px;color:#475569;margin:8px 0 0;">
+            This is an automated email. Please do not reply.
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>`;
   }
 
-  // -------------------------
-  // PASSWORD RESET EMAIL
-  // -------------------------
+  // ─── WELCOME EMAIL ───
+  async sendWelcomeEmail(name: string, email: string) {
+    const body = `
+      <div style="padding:32px;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="display:inline-block;width:56px;height:56px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);border-radius:12px;line-height:56px;font-size:28px;">
+            🎉
+          </div>
+        </div>
+
+        <h1 style="margin:0 0 8px;text-align:center;font-size:24px;font-weight:700;color:#f1f5f9;">
+          Welcome, ${name}!
+        </h1>
+        <p style="margin:0 0 24px;text-align:center;font-size:14px;color:#94a3b8;line-height:1.6;">
+          Your account has been created successfully.<br>
+          You can now start creating and managing quotations.
+        </p>
+
+        <div style="text-align:center;">
+          <a href="${process.env.APP_URL}/dashboard"
+            style="display:inline-block;padding:12px 32px;background:#059669;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">
+            Go to Dashboard →
+          </a>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail(email, 'Welcome to QuotationSystem!', this.wrap(body));
+  }
+
+  // ─── PASSWORD RESET EMAIL ───
   async sendPasswordResetEmail(email: string, token: string) {
     const resetUrl = `${process.env.APP_URL}/reset-password?token=${token}`;
 
-    const html = `
-      <h2>Password Reset Request</h2>
-      <p>You requested to reset your password. Click the link below:</p>
-      <a href="${resetUrl}" style="color: #3366ff;">Reset Password</a>
-      <p>If you did not request this, please ignore this email.</p>
+    const body = `
+      <div style="padding:32px;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="display:inline-block;width:56px;height:56px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);border-radius:12px;line-height:56px;font-size:28px;">
+            🔑
+          </div>
+        </div>
+
+        <h1 style="margin:0 0 8px;text-align:center;font-size:24px;font-weight:700;color:#f1f5f9;">
+          Password Reset
+        </h1>
+        <p style="margin:0 0 24px;text-align:center;font-size:14px;color:#94a3b8;line-height:1.6;">
+          You requested to reset your password.<br>
+          Click the button below to set a new one.
+        </p>
+
+        <div style="text-align:center;margin-bottom:24px;">
+          <a href="${resetUrl}"
+            style="display:inline-block;padding:12px 32px;background:#059669;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">
+            Reset Password
+          </a>
+        </div>
+
+        <p style="font-size:12px;color:#64748b;text-align:center;line-height:1.5;">
+          If the button doesn't work, copy this link:<br>
+          <a href="${resetUrl}" style="color:#34d399;word-break:break-all;font-size:11px;">${resetUrl}</a>
+        </p>
+
+        <div style="margin-top:20px;padding:12px;background:#0f172a;border-radius:8px;">
+          <p style="margin:0;font-size:12px;color:#64748b;text-align:center;">
+            If you didn't request this, ignore this email.
+          </p>
+        </div>
+      </div>
     `;
 
-    return this.sendEmail(email, 'Password Reset Instructions', html);
+    return this.sendEmail(email, 'Reset Your Password', this.wrap(body));
   }
 
-  // ---------------------------------------------------
-  // SEND QUOTATION EMAIL (FULL UI/UX TEMPLATE INCLUDED)
-  // ---------------------------------------------------
+  // ─── QUOTATION EMAIL ───
   async sendQuotationEmail(quotationId: string, clientEmail: string) {
     const quotation = await this.prisma.quotation.findUnique({
       where: { id: quotationId },
@@ -79,136 +158,122 @@ export class EmailService {
     }
 
     const publicLink = `${process.env.APP_URL}/quotation-public/${quotationId}`;
+    const html = this.buildQuotationEmailHtml(quotation, publicLink);
 
-    const html = await this.buildQuotationEmailHtml(quotation, publicLink);
-
-    return this.sendEmail(clientEmail, 'Your Quotation is Ready', html);
+    return this.sendEmail(clientEmail, 'Your Quotation is Ready', this.wrap(html));
   }
 
-  // ---------------------------------------------------
-  // QUOTATION EMAIL TEMPLATE (POLISHED UI/UX)
-  // ---------------------------------------------------
-  private async buildQuotationEmailHtml(q: FullQuotation, link: string) {
-    const statusColor =
-      q.status === 'APPROVED'
-        ? '#28a745'
-        : q.status === 'REJECTED'
-          ? '#dc3545'
-          : q.status === 'EXPIRED'
-            ? '#6c757d'
-            : '#f0ad4e';
+  private buildQuotationEmailHtml(q: FullQuotation, link: string) {
+    const statusMap: Record<string, { bg: string; text: string; label: string }> = {
+      APPROVED: { bg: 'rgba(52,211,153,0.15)', text: '#34d399', label: 'APPROVED' },
+      REJECTED: { bg: 'rgba(248,113,113,0.15)', text: '#f87171', label: 'REJECTED' },
+      EXPIRED: { bg: 'rgba(148,163,184,0.15)', text: '#94a3b8', label: 'EXPIRED' },
+      PENDING: { bg: 'rgba(250,204,21,0.15)', text: '#facc15', label: 'PENDING' },
+      SENT: { bg: 'rgba(96,165,250,0.15)', text: '#60a5fa', label: 'SENT' },
+    };
+    const s = statusMap[q.status] || statusMap.PENDING;
 
     const itemsHtml = q.items
       .map(
         (item) => `
-      <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #eee;">
-          <strong style="font-size: 14px;">${item.itemName}</strong><br>
-          <small style="color:#777;">${item.description || ''}</small>
-        </td>
-        <td style="padding: 10px; text-align:center; border-bottom: 1px solid #eee;">
-          ${item.quantity}
-        </td>
-        <td style="padding: 10px; text-align:right; border-bottom: 1px solid #eee;">
-          ₹${item.unitPrice}
-        </td>
-        <td style="padding: 10px; text-align:right; border-bottom: 1px solid #eee;">
-          ₹${item.totalPrice}
-        </td>
-      </tr>`,
+        <tr>
+          <td style="padding:12px 16px;border-bottom:1px solid #334155;">
+            <div style="font-size:14px;font-weight:600;color:#f1f5f9;">${item.itemName}</div>
+            ${item.description ? `<div style="font-size:12px;color:#64748b;margin-top:2px;">${item.description}</div>` : ''}
+          </td>
+          <td style="padding:12px 16px;text-align:center;border-bottom:1px solid #334155;color:#cbd5e1;font-size:14px;">
+            ${item.quantity}
+          </td>
+          <td style="padding:12px 16px;text-align:right;border-bottom:1px solid #334155;color:#cbd5e1;font-size:14px;">
+            ₹${item.unitPrice}
+          </td>
+          <td style="padding:12px 16px;text-align:right;border-bottom:1px solid #334155;color:#f1f5f9;font-weight:600;font-size:14px;">
+            ₹${item.totalPrice}
+          </td>
+        </tr>`,
       )
       .join('');
 
+    const validDate = q.validityDate
+      ? new Date(q.validityDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
+      : '—';
+
     return `
-  <div style="background:#f2f4f6; padding: 40px; font-family: Arial, sans-serif;">
-    <div style="max-width:650px; margin:auto; background:#ffffff; padding:30px; border-radius:12px; box-shadow:0 6px 25px rgba(0,0,0,0.08);">
-      
-      <h2 style="text-align:center; color:#333; font-size:24px; margin-top:0;">
-        Your Quotation is Ready
-      </h2>
-
-      <div style="text-align:center; margin-bottom: 15px;">
-        <span style="
-          background:${statusColor};
-          padding:6px 14px;
-          border-radius:20px;
-          color:white;
-          font-size:13px;
-          font-weight:bold;
-          text-transform:uppercase;">
-          ${q.status}
-        </span>
+      <!-- Header -->
+      <div style="padding:32px 32px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <h1 style="margin:0;font-size:22px;font-weight:700;color:#f1f5f9;">
+            Quotation
+          </h1>
+          <span style="display:inline-block;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;
+            background:${s.bg};color:${s.text};letter-spacing:0.5px;">
+            ${s.label}
+          </span>
+        </div>
+        <p style="margin:6px 0 0;font-size:12px;color:#64748b;">#${q.id.slice(0, 8)}</p>
       </div>
 
-      <p style="text-align:center; color:#555; margin-top:10px; font-size:14px;">
-        <strong>Quotation ID:</strong> ${q.id}
-      </p>
-
-      <hr style="border:none; border-top:1px solid #eee; margin:25px 0;">
-
-      <h3 style="color:#444; margin-bottom: 12px; font-size:18px;">
-        Quotation Summary
-      </h3>
-
-      <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
-        <thead>
-          <tr style="background:#fafafa;">
-            <th style="padding:12px; text-align:left; border-bottom:2px solid #ddd;">Item</th>
-            <th style="padding:12px; text-align:center; border-bottom:2px solid #ddd;">Qty</th>
-            <th style="padding:12px; text-align:right; border-bottom:2px solid #ddd;">Unit Price</th>
-            <th style="padding:12px; text-align:right; border-bottom:2px solid #ddd;">Total</th>
+      <!-- Client Info -->
+      <div style="padding:0 32px 20px;">
+        <table style="width:100%;" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:12px 16px;background:#0f172a;border-radius:8px 0 0 8px;">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;margin-bottom:4px;">Client</div>
+              <div style="font-size:14px;color:#f1f5f9;font-weight:600;">${q.clientName}</div>
+            </td>
+            <td style="padding:12px 16px;background:#0f172a;">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;margin-bottom:4px;">Email</div>
+              <div style="font-size:14px;color:#f1f5f9;font-weight:600;">${q.clientEmail}</div>
+            </td>
+            <td style="padding:12px 16px;background:#0f172a;border-radius:0 8px 8px 0;">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;margin-bottom:4px;">Valid Until</div>
+              <div style="font-size:14px;color:#f1f5f9;font-weight:600;">${validDate}</div>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          ${itemsHtml}
-        </tbody>
-      </table>
-
-      <div style="
-        text-align:right;
-        margin-top:20px;
-        margin-bottom: 25px;
-        background:#f8f9fa;
-        padding: 12px 18px;
-        border-radius:8px;
-      ">
-        <span style="font-size:18px; font-weight:bold; color:#222;">
-          Grand Total: ₹${q.totalAmount}
-        </span>
+        </table>
       </div>
 
-      <div style="text-align:center; margin:40px 0 20px;">
+      <!-- Items Table -->
+      <div style="padding:0 32px;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#0f172a;">
+              <th style="padding:10px 16px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;font-weight:600;">Item</th>
+              <th style="padding:10px 16px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;font-weight:600;">Qty</th>
+              <th style="padding:10px 16px;text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;font-weight:600;">Unit Price</th>
+              <th style="padding:10px 16px;text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;font-weight:600;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Grand Total -->
+      <div style="padding:20px 32px;">
+        <div style="text-align:right;padding:16px 20px;background:#0f172a;border-radius:8px;">
+          <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;display:block;margin-bottom:4px;">Grand Total</span>
+          <span style="font-size:28px;font-weight:800;color:#34d399;">₹${q.totalAmount}</span>
+        </div>
+      </div>
+
+      <!-- CTA Button -->
+      <div style="padding:8px 32px 32px;text-align:center;">
         <a href="${link}"
-          style="
-            display:inline-block;
-            padding:14px 28px;
-            background:#0056d2;
-            color:white;
-            text-decoration:none;
-            border-radius:6px;
-            font-size:16px;
-            font-weight:bold;
-            box-shadow:0 4px 12px rgba(0,0,0,0.15);
-          ">
-          View Full Quotation
+          style="display:inline-block;padding:14px 40px;background:#059669;color:#ffffff;text-decoration:none;border-radius:10px;font-size:15px;font-weight:700;letter-spacing:0.3px;">
+          View & Respond to Quotation →
         </a>
+
+        <p style="margin:16px 0 0;font-size:11px;color:#475569;line-height:1.5;">
+          Can't click? Copy this link:<br>
+          <a href="${link}" style="color:#34d399;word-break:break-all;">${link}</a>
+        </p>
       </div>
-
-      <p style="color:#777; font-size:13px; text-align:center; line-height:1.6;">
-        If the button doesn’t work, use this link:<br>
-        <a href="${link}" style="color:#0056d2; word-break:break-all;">${link}</a>
-      </p>
-
-      <hr style="border:none; border-top:1px solid #eee; margin:30px 0;">
-
-      <p style="font-size:12px; color:#aaa; text-align:center;">
-        This is an automated email. Please do not reply.
-      </p>
-
-    </div>
-  </div>`;
+    `;
   }
 
+  // ─── ADMIN NOTIFICATION ───
   async sendAdminNotification(
     adminId: string,
     quotationId: string,
@@ -219,12 +284,49 @@ export class EmailService {
 
     if (!admin) return;
 
-    const html = `
-    <h2>Quotation Response</h2>
-    <p>Your quotation (ID: ${quotationId}) was <strong>${status}</strong> by the client.</p>
-    ${comment ? `<p><strong>Comment:</strong> ${comment}</p>` : ''}
-  `;
+    const isApproved = status === 'APPROVED';
+    const emoji = isApproved ? '✅' : '❌';
+    const statusColor = isApproved ? '#34d399' : '#f87171';
+    const statusBg = isApproved ? 'rgba(52,211,153,0.15)' : 'rgba(248,113,113,0.15)';
 
-    return this.sendEmail(admin.email, 'Quotation Response Received', html);
+    const body = `
+      <div style="padding:32px;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="display:inline-block;width:56px;height:56px;background:${statusBg};border-radius:12px;line-height:56px;font-size:28px;">
+            ${emoji}
+          </div>
+        </div>
+
+        <h1 style="margin:0 0 8px;text-align:center;font-size:22px;font-weight:700;color:#f1f5f9;">
+          Quotation ${status}
+        </h1>
+        <p style="margin:0 0 20px;text-align:center;font-size:14px;color:#94a3b8;">
+          Your quotation <span style="color:#f1f5f9;font-weight:600;">#${quotationId.slice(0, 8)}</span>
+          was <span style="color:${statusColor};font-weight:700;">${status}</span> by the client.
+        </p>
+
+        ${comment
+        ? `
+          <div style="padding:16px;background:#0f172a;border-radius:8px;border-left:3px solid ${statusColor};margin-bottom:20px;">
+            <p style="margin:0 0 4px;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;font-weight:600;">Client Comment</p>
+            <p style="margin:0;font-size:14px;color:#cbd5e1;line-height:1.5;">"${comment}"</p>
+          </div>`
+        : ''
+      }
+
+        <div style="text-align:center;">
+          <a href="${process.env.APP_URL}/dashboard/quotations/${quotationId}"
+            style="display:inline-block;padding:12px 32px;background:#059669;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">
+            View Quotation →
+          </a>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail(
+      admin.email,
+      `Quotation ${status} — #${quotationId.slice(0, 8)}`,
+      this.wrap(body),
+    );
   }
 }

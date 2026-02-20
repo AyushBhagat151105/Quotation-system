@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import type { LoginSchemaType } from '@/schemas/auth'
 import { LoginDtoSchema } from '@/types/api'
+import { LogIn } from 'lucide-react'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -35,58 +36,70 @@ function LoginPage() {
   if (user) return <Navigate to="/dashboard" />
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
-
-      <div className="absolute inset-0 bg-linear-to-br from-pink-500/20 via-purple-600/10 to-blue-500/20 blur-3xl" />
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
+      {/* Subtle background glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-emerald-500/5 blur-[150px] rounded-full" />
 
       <form
         onSubmit={form.handleSubmit(loginNow)}
-        className="relative z-10 w-full max-w-md p-8 rounded-2xl 
-          backdrop-blur-2xl bg-white/5 
-          border border-white/10 shadow-2xl text-white space-y-4"
+        className="relative z-10 w-full max-w-md p-8 rounded-xl bg-slate-900 border border-slate-800 shadow-xl space-y-6"
       >
-        <h1 className="text-4xl font-extrabold text-center 
-          bg-linear-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent
-        ">
-          Welcome Back
-        </h1>
+        {/* Header */}
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <LogIn className="w-6 h-6 text-emerald-400" />
+          </div>
+          <h1 className="text-2xl font-bold text-white">Welcome back</h1>
+          <p className="text-slate-400 text-sm mt-1">
+            Sign in to access your dashboard
+          </p>
+        </div>
 
-        <p className="text-center text-gray-300 mb-6">
-          Login to access your dashboard
-        </p>
-
+        {/* Form Fields */}
         <div className="space-y-4">
-          <Input
-            {...form.register("email")}
-            placeholder="Email"
-            className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-          />
-          {form.formState.errors.email && (
-            <p className="text-red-400 text-sm">{form.formState.errors.email.message}</p>
-          )}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              Email
+            </label>
+            <Input
+              {...form.register("email")}
+              type="email"
+              placeholder="you@example.com"
+              className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500/20"
+            />
+            {form.formState.errors.email && (
+              <p className="text-red-400 text-xs mt-1">{form.formState.errors.email.message}</p>
+            )}
+          </div>
 
-          <Input
-            {...form.register("password")}
-            type="password"
-            placeholder="Password"
-            className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-          />
-          {form.formState.errors.password && (
-            <p className="text-red-400 text-sm">{form.formState.errors.password.message}</p>
-          )}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              Password
+            </label>
+            <Input
+              {...form.register("password")}
+              type="password"
+              placeholder="••••••••"
+              className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500/20"
+            />
+            {form.formState.errors.password && (
+              <p className="text-red-400 text-xs mt-1">{form.formState.errors.password.message}</p>
+            )}
+          </div>
 
           <Button
             type="submit"
-            className="w-full py-3 text-lg bg-linear-to-r from-pink-500 to-purple-500 hover:opacity-90 transition-all shadow-lg"
+            className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors"
           >
-            Login
+            Sign In
           </Button>
         </div>
 
-        <p className="text-center text-gray-400 mt-4">
-          Don’t have an account?{" "}
-          <Link to="/register" className="text-pink-400 hover:underline">
-            Register
+        {/* Footer link */}
+        <p className="text-center text-slate-500 text-sm">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-emerald-400 hover:text-emerald-300 transition-colors">
+            Create one
           </Link>
         </p>
       </form>

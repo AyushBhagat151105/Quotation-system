@@ -4,19 +4,33 @@ import { quotationApi } from "@/api/quotation";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, FileText } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute('/quotation-public/$id')({
   component: RouteComponent,
 });
 
+function StatusBadge({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    APPROVED: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+    REJECTED: "bg-red-500/15 text-red-400 border-red-500/20",
+    EXPIRED: "bg-slate-500/15 text-slate-400 border-slate-500/20",
+    PENDING: "bg-yellow-500/15 text-yellow-400 border-yellow-500/20",
+    SENT: "bg-blue-500/15 text-blue-400 border-blue-500/20",
+  };
+  return (
+    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${styles[status] || styles.PENDING}`}>
+      {status}
+    </span>
+  );
+}
+
 function RouteComponent() {
   const { id } = useParams({ from: "/quotation-public/$id" });
 
   const [reasonModal, setReasonModal] = useState(false);
   const [rejectMessage, setRejectMessage] = useState("");
-
 
   const query = useQuery({
     queryKey: ["quotation-public", id],
@@ -37,8 +51,8 @@ function RouteComponent() {
 
   if (isLoading)
     return (
-      <div className="text-white p-10 flex justify-center">
-        <Loader2 className="animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-950">
+        <Loader2 className="animate-spin text-slate-400 w-6 h-6" />
       </div>
     );
 
@@ -48,115 +62,158 @@ function RouteComponent() {
     q.status === "EXPIRED";
 
   return (
-    <div className="min-h-screen p-8 text-white flex justify-center">
+    <div className="min-h-screen bg-slate-950 py-8 px-4 flex justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-2xl bg-white/5 p-8 rounded-2xl border border-white/10 backdrop-blur-xl shadow-xl"
+        className="w-full max-w-3xl"
       >
-        {/* Title */}
-        <h1 className="text-4xl font-bold text-center 
-          bg-linear-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent mb-6">
-          Quotation Preview
-        </h1>
-
-        {/* Client Info */}
-        <div className="space-y-2">
-          <p><strong>Client:</strong> {q.clientName}</p>
-          <p><strong>Email:</strong> {q.clientEmail}</p>
-          <p><strong>Status:</strong> {q.status}</p>
-          <p><strong>Total:</strong> ₹{q.totalAmount}</p>
-        </div>
-
-        {/* Items */}
-        <h2 className="text-xl font-semibold mt-6">Items</h2>
-        <div className="space-y-3">
-          {q.items.map((i: any) => (
-            <div key={i.id} className="p-4 bg-white/10 rounded-lg">
-              <p className="font-bold">{i.itemName}</p>
-              <p className="text-white/70">{i.description}</p>
-              <p>Qty: {i.quantity}</p>
-              <p>Total: ₹{i.totalPrice}</p>
+        {/* Header card */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          {/* Top bar */}
+          <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-white">Quotation</h1>
+                <p className="text-xs text-slate-500">#{id.slice(0, 8)}</p>
+              </div>
             </div>
-          ))}
+            <StatusBadge status={q.status} />
+          </div>
+
+          {/* Client info */}
+          <div className="px-6 py-5 border-b border-slate-800">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Client</p>
+                <p className="text-sm text-white font-medium">{q.clientName}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Email</p>
+                <p className="text-sm text-white font-medium">{q.clientEmail}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Status</p>
+                <p className="text-sm text-white font-medium">{q.status}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Items table */}
+          <div className="px-6 py-5 border-b border-slate-800">
+            <h2 className="text-xs uppercase tracking-wider text-slate-500 font-medium mb-4">Items</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-800">
+                    <th className="text-left py-2 pr-4 text-slate-400 font-medium text-xs uppercase tracking-wider">Item</th>
+                    <th className="text-left py-2 pr-4 text-slate-400 font-medium text-xs uppercase tracking-wider">Description</th>
+                    <th className="text-right py-2 pr-4 text-slate-400 font-medium text-xs uppercase tracking-wider">Qty</th>
+                    <th className="text-right py-2 text-slate-400 font-medium text-xs uppercase tracking-wider">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {q.items.map((i: any) => (
+                    <tr key={i.id} className="border-b border-slate-800/50">
+                      <td className="py-3 pr-4 text-white font-medium">{i.itemName}</td>
+                      <td className="py-3 pr-4 text-slate-400">{i.description || "—"}</td>
+                      <td className="py-3 pr-4 text-right text-slate-300">{i.quantity}</td>
+                      <td className="py-3 text-right text-white font-medium">₹{i.totalPrice}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Grand total */}
+          <div className="px-6 py-5 flex justify-end">
+            <div className="text-right">
+              <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Grand Total</p>
+              <p className="text-3xl font-bold text-emerald-400">₹{q.totalAmount}</p>
+            </div>
+          </div>
         </div>
 
-        {/* Previous client message */}
+        {/* Client previous comment */}
         {q.clientComment && (
-          <div className="mt-6 p-4 bg-red-500/20 border border-red-400/30 rounded-lg">
-            <p className="font-semibold text-red-300 mb-1">Client Response:</p>
-            <p className="text-red-200">{q.clientComment}</p>
+          <div className="mt-6 bg-slate-900 border border-slate-800 rounded-xl p-6">
+            <h2 className="text-xs uppercase tracking-wider text-slate-500 font-medium mb-3">Previous Response</h2>
+            <p className="text-slate-300 text-sm">"{q.clientComment}"</p>
           </div>
         )}
 
         {/* Response Buttons */}
-        <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center">
-          {/* Approve */}
-          <Button
-            disabled={disabled}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 w-full md:w-auto"
-            onClick={() => respondMutation.mutate({ status: "APPROVED" })}
-          >
-            <CheckCircle className="w-5 h-5" />
-            Approve
-          </Button>
+        {!disabled && (
+          <div className="mt-6 flex flex-col md:flex-row gap-4">
+            <Button
+              className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white text-base font-semibold rounded-xl flex items-center justify-center gap-2"
+              onClick={() => respondMutation.mutate({ status: "APPROVED" })}
+            >
+              <CheckCircle className="w-5 h-5" />
+              Approve Quotation
+            </Button>
 
-          {/* Reject */}
-          <Button
-            disabled={disabled}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 w-full md:w-auto"
-            onClick={() => setReasonModal(true)}
-          >
-            <XCircle className="w-5 h-5" />
-            Reject
-          </Button>
-        </div>
+            <Button
+              className="flex-1 py-4 bg-red-600/80 hover:bg-red-600 text-white text-base font-semibold rounded-xl flex items-center justify-center gap-2"
+              onClick={() => setReasonModal(true)}
+            >
+              <XCircle className="w-5 h-5" />
+              Reject Quotation
+            </Button>
+          </div>
+        )}
 
-        {/* Already responded message */}
+        {/* Already responded */}
         {disabled && (
-          <p className="text-center text-white/60 mt-4">
-            You have already responded to this quotation.
-          </p>
+          <div className="mt-6 bg-slate-900 border border-slate-800 rounded-xl p-6 text-center">
+            <p className="text-slate-400 text-sm">
+              This quotation has already been responded to.
+            </p>
+          </div>
         )}
 
         {/* Reject Modal */}
         {reasonModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white/10 border border-white/20 p-6 rounded-xl w-full max-w-md backdrop-blur-xl shadow-2xl"
+              className="bg-slate-900 border border-slate-700 p-6 rounded-xl w-full max-w-md shadow-2xl"
             >
-              <h3 className="text-xl font-bold mb-3">Reason for Rejection</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Reason for Rejection</h3>
 
               <textarea
-                className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white text-sm placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none"
                 rows={4}
-                placeholder="Write your reason..."
+                placeholder="Tell the sender why you're rejecting..."
                 onChange={(e) => setRejectMessage(e.target.value)}
               />
 
               <div className="flex justify-end gap-3 mt-4">
                 <Button
                   variant="ghost"
-                  className="text-white"
+                  className="text-slate-300 hover:text-white"
                   onClick={() => setReasonModal(false)}
                 >
                   Cancel
                 </Button>
 
                 <Button
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-red-600 hover:bg-red-500 text-white"
                   onClick={() =>
                     respondMutation.mutate({
                       status: "REJECTED",
                       comment: rejectMessage,
                     })
                   }
-                  disabled={isLoading}
+                  disabled={respondMutation.isPending}
                 >
-                  {isLoading ? (
-                    <Loader2 className="animate-spin w-5 h-5 text-white" />
+                  {respondMutation.isPending ? (
+                    <Loader2 className="animate-spin w-5 h-5" />
                   ) : (
                     "Submit"
                   )}

@@ -7,8 +7,8 @@ export const Route = createFileRoute('/dashboard/quotations/create')({
 
 function RouteComponent() {
   return (
-    <div className="p-8 text-white">
-      <h1 className="text-3xl font-bold mb-6">Create Quotation</h1>
+    <div className="p-6 lg:p-8">
+      <h1 className="text-2xl font-bold text-white mb-6">Create Quotation</h1>
       <CreateQuotationForm />
     </div>
   )
