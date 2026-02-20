@@ -8,7 +8,6 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import type { LoginSchemaType } from '@/schemas/auth'
 import { LoginDtoSchema } from '@/types/api'
-import { Loader2 } from 'lucide-react'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -27,12 +26,7 @@ function LoginPage() {
 
   const loginNow = async (values: LoginSchemaType) => {
     try {
-      const res = await authApi.login(values)
-      if (!res) {
-        <div className="flex items-center justify-center p-10">
-          <Loader2 className="animate-spin text-white" />
-        </div>
-      }
+      await authApi.login(values)
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Invalid credentials")
     }

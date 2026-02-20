@@ -8,9 +8,11 @@ import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: process.env.JWT_SECRET as string,
-      signOptions: { expiresIn: '7d' },
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET as string,
+        signOptions: { expiresIn: '7d' },
+      }),
     }),
     EmailModule,
   ],
@@ -18,4 +20,4 @@ import { EmailModule } from 'src/email/email.module';
   providers: [AuthService, JwtStrategy, PrismaService],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }
