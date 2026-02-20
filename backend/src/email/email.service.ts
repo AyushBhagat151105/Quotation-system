@@ -1,28 +1,21 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Quotation } from '../generated/prisma/client';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { PrismaService } from 'src/prisma.service';
 import { FullQuotation } from 'src/types/Quotation';
 
 @Injectable()
 export class EmailService {
-  private transporter: nodemailer.Transporter;
+  private resend: Resend;
 
   constructor(private prisma: PrismaService) {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.MAILTRAP_HOST,
-      port: Number(process.env.MAILTRAP_PORT),
-      auth: {
-        user: process.env.MAILTRAP_USERNAME,
-        pass: process.env.MAILTRAP_PASSWORD,
-      },
-    });
+    this.resend = new Resend(process.env.MAILTRAP_PASSWORD);
   }
 
   async sendEmail(to: string, subject: string, html: string) {
     try {
-      await this.transporter.sendMail({
-        from: process.env.MAILTRAP_FROM,
+      await this.resend.emails.send({
+        from: process.env.MAILTRAP_FROM as string,
         to,
         subject,
         html,
