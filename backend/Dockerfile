@@ -26,8 +26,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client
-RUN pnpm prisma generate
+# Generate Prisma client (dummy URL — only schema is needed, no actual DB connection)
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm prisma generate
 
 # Build NestJS
 RUN pnpm run nest build
