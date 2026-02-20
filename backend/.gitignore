@@ -2,6 +2,9 @@
 /dist
 /node_modules
 /build
+
+# Prisma generated client
+/src/generated
 pnpm-lock.yaml
 
 # Logs

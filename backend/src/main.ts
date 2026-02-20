@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import 'dotenv/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { apiReference } from '@scalar/nestjs-api-reference';
 import path from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -36,11 +37,13 @@ async function bootstrap() {
     res.json(document);
   });
 
-  SwaggerModule.setup('docs', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
-  });
+  app.use(
+    '/docs',
+    apiReference({
+      content: document,
+      theme: 'kepler',
+    }),
+  );
 
   await app.listen(process.env.PORT as string);
 

@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Quotation } from '@prisma/client';
+import { Quotation } from '../generated/prisma/client';
 import * as nodemailer from 'nodemailer';
 import { PrismaService } from 'src/prisma.service';
 import { FullQuotation } from 'src/types/Quotation';

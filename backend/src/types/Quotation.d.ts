@@ -1,4 +1,4 @@
-import { Quotation, QuotationItem } from '@prisma/client';
+import { Quotation, QuotationItem } from '../generated/prisma/client';
 
 export type FullQuotation = Quotation & {
   items: QuotationItem[];
